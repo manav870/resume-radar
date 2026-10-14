@@ -1,275 +1,285 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How It Works — GradeFlow</title>
+    <title>How It Works & Setup Guide — Resume Radar</title>
     <meta name="description"
-        content="Learn how GradeFlow automates assignment grading using Gemini AI, Google Drive, and Google Docs.">
+        content="Complete system architecture, Google Drive setup, deterministic scoring formula, and API reference for Resume Radar.">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .page-shell {
-            flex: 1;
-            padding: 64px 0 88px;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at top left, rgba(224, 122, 95, 0.06), transparent 24%);
-            pointer-events: none;
-            z-index: -1;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
 
+    <!-- ── NAVIGATION BAR ── -->
     <nav class="navbar">
-        <a class="logo" href="/">
-            <div class="logo-icon">G</div>
-            GradeFlow
-        </a>
-        <div class="nav-links">
-            <a href="/" class="hide-mobile">Home</a>
-            <a href="/grade.html" class="hide-mobile">Grade</a>
-            <a href="/guide.html" class="hide-mobile active-link">How It Works</a>
-            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
-                <i class="fa-solid fa-moon icon-moon"></i>
-                <i class="fa-solid fa-sun icon-sun"></i>
-            </button>
+        <div class="container nav-container">
+            <a class="logo" href="/">
+                <div class="logo-icon-wrapper">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <div class="logo-radar-sweep"></div>
+                </div>
+                <span>Resume Radar</span>
+                <span class="logo-badge">PRO</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a href="/job.html" class="nav-link">
+                    <i class="fa-solid fa-briefcase"></i> Job Criteria
+                </a>
+                <a href="/grade.html" class="nav-link">
+                    <i class="fa-solid fa-layer-group"></i> Screen Batch
+                </a>
+                <a href="/analytics.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i> Analytics
+                </a>
+                <a href="/guide.html" class="nav-link active">
+                    <i class="fa-solid fa-book-open"></i> How It Works
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                    <i class="fa-solid fa-moon icon-moon"></i>
+                    <i class="fa-solid fa-sun icon-sun"></i>
+                </button>
+                <a href="/grade.html" class="btn-primary btn-sm">
+                    <i class="fa-solid fa-bolt"></i> Screen Batch
+                </a>
+            </div>
         </div>
     </nav>
 
-    <main class="page-shell">
-        <!-- Hero -->
-        <section class="hero" style="padding: 0 24px 28px; max-width: 840px;">
-            <p class="eyebrow reveal">Project Guide</p>
-            <h1 class="reveal delay-1" style="font-size: clamp(2.7rem, 5vw, 4rem);">
-                Assignment grading, made <span class="accent-word">simple.</span>
-            </h1>
-            <p class="reveal delay-2">
-                GradeFlow helps teachers move from manual grading to an automated workflow: upload files to Drive, let
-                AI evaluate them, and get structured feedback in a Google Doc.
-            </p>
-            <div class="cta-row reveal delay-3">
-                <a href="/grade.html" class="btn-primary">Try It Now</a>
-                <a href="#process" class="btn-secondary">See the Flow</a>
-            </div>
-        </section>
+    <!-- ── MAIN CONTENT ── -->
+    <main style="padding: 40px 0 80px;">
+        <div class="container" style="max-width: 980px;">
 
-        <!-- Why Use It -->
-        <section class="section" id="why">
-            <div class="container">
-                <h2 class="section-title reveal">Why use GradeFlow?</h2>
-                <p class="section-subtitle reveal delay-1">Grading is usually slow, repetitive, and inconsistent.
-                    GradeFlow is built to fix all three.</p>
-                <div class="grid-3">
-                    <article class="card reveal delay-1">
-                        <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
-                        <h3>Saves Time</h3>
-                        <p>Instead of reading and scoring each assignment manually, AI generates a detailed diagnostic
-                            report in seconds.</p>
-                    </article>
-                    <article class="card reveal delay-2">
-                        <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
-                        <h3>Reduces Bias</h3>
-                        <p>Every student gets evaluated against the same 4-criterion rubric — consistent, fair, and
-                            transparent.</p>
-                    </article>
-                    <article class="card reveal delay-3">
-                        <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
-                        <h3>Actionable Feedback</h3>
-                        <p>Goes beyond scores: identifies specific errors, explains why they're wrong, and gives each
-                            student a targeted practice task.</p>
-                    </article>
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 48px;">
+                <div class="hero-badge-pill" style="margin-bottom: 16px;">
+                    <i class="fa-solid fa-book-bookmark"></i> Documentation & Operations
                 </div>
-            </div>
-        </section>
-
-        <!-- Before / After -->
-        <section class="section" style="margin-top: 48px;">
-            <div class="container">
-                <h2 class="section-title reveal">What it replaces</h2>
-                <p class="section-subtitle reveal delay-1">See what changes when you let AI handle the rubric
-                    evaluation.</p>
-                <div class="compare-grid">
-                    <div class="compare-card reveal delay-1">
-                        <h3>Before GradeFlow</h3>
-                        <ul class="compare-list">
-                            <li><i class="fa-solid fa-xmark"></i><span>Reading every assignment manually, line by
-                                    line</span></li>
-                            <li><i class="fa-solid fa-xmark"></i><span>Writing repetitive feedback comments by
-                                    hand</span></li>
-                            <li><i class="fa-solid fa-xmark"></i><span>Inconsistent rubric application across
-                                    students</span></li>
-                            <li><i class="fa-solid fa-xmark"></i><span>Hours spent on a single batch of
-                                    assignments</span></li>
-                        </ul>
-                    </div>
-                    <div class="compare-card reveal delay-2">
-                        <h3>With GradeFlow</h3>
-                        <ul class="compare-list">
-                            <li><i class="fa-solid fa-check"></i><span>Upload a folder and let AI analyze each
-                                    submission</span></li>
-                            <li><i class="fa-solid fa-check"></i><span>Structured reports with error analysis &
-                                    corrections</span></li>
-                            <li><i class="fa-solid fa-check"></i><span>Same 4-criterion rubric applied to every
-                                    student</span></li>
-                            <li><i class="fa-solid fa-check"></i><span>Entire batch graded in minutes, not hours</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Step by Step -->
-        <section class="section" id="process" style="margin-top: 48px;">
-            <div class="container">
-                <h2 class="section-title reveal">How it works</h2>
-                <p class="section-subtitle reveal delay-1">A simple flow that does the heavy lifting behind the scenes.
+                <h1 style="font-size: 2.6rem; margin-bottom: 12px;">System Architecture & Setup Guide</h1>
+                <p style="color: var(--text-secondary); max-width: 700px; margin: 0 auto; font-size: 1.05rem;">
+                    Everything you need to know about Resume Radar: the 4-stage pipeline, deterministic scoring formula, Google Drive Service Account integration, and API endpoints.
                 </p>
-                <div class="step-list">
-                    <article class="card guide-step-card reveal delay-1">
-                        <div class="guide-step-number">1</div>
-                        <div class="guide-step-copy">
-                            <h3>Prepare Your Files</h3>
-                            <p>Create a Google Drive folder and add student assignments as text files. Name them like
-                                <code>27_Mohan.txt</code> so the system auto-detects the roll number and student name.
-                            </p>
-                        </div>
-                    </article>
-                    <article class="card guide-step-card reveal delay-2">
-                        <div class="guide-step-number">2</div>
-                        <div class="guide-step-copy">
-                            <h3>Share with Service Account</h3>
-                            <p>Share both the input folder and a blank output Google Doc with the service account email
-                                (<code>hackathon@hackathon-509406.iam.gserviceaccount.com</code>) as Editor.</p>
-                        </div>
-                    </article>
-                    <article class="card guide-step-card reveal delay-3">
-                        <div class="guide-step-number">3</div>
-                        <div class="guide-step-copy">
-                            <h3>Enter IDs & Process</h3>
-                            <p>Go to the <a href="/grade.html" style="color: var(--accent); font-weight: 600;">Grade
-                                    page</a>, paste the Folder ID and Doc ID, set the batch size, and click "Generate
-                                Batch Feedback".</p>
-                        </div>
-                    </article>
-                    <article class="card guide-step-card reveal delay-4">
-                        <div class="guide-step-number">4</div>
-                        <div class="guide-step-copy">
-                            <h3>Review in Google Docs</h3>
-                            <p>Open your feedback Google Doc. Each student's evaluation includes criterion scores, error
-                                analysis with corrections, hidden assumptions, and an actionable next step.</p>
-                        </div>
-                    </article>
-                </div>
             </div>
-        </section>
 
-        <!-- Feedback Format -->
-        <section class="section" style="margin-top: 48px;">
-            <div class="container">
-                <h2 class="section-title reveal">What the feedback looks like</h2>
-                <p class="section-subtitle reveal delay-1">Each student gets a structured diagnostic report with these
-                    sections:</p>
-                <div class="grid-2" style="margin-top: 24px;">
-                    <article class="card reveal delay-1">
-                        <div class="icon-box"><i class="fa-solid fa-table-cells"></i></div>
-                        <h3>Criterion Breakdown</h3>
-                        <p>Four dimensions scored out of 5: Clarity & Structure, Factual Accuracy, Completeness, and
-                            Conceptual Depth — each with a detailed diagnostic.</p>
-                    </article>
-                    <article class="card reveal delay-2">
-                        <div class="icon-box"><i class="fa-solid fa-bug"></i></div>
-                        <h3>Error Analysis</h3>
-                        <p>Specific mistakes identified with what was written, why it's incorrect, and the correct
-                            approach — so students learn from their errors.</p>
-                    </article>
-                    <article class="card reveal delay-3">
-                        <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
-                        <h3>Hidden Assumptions</h3>
-                        <p>Unstated premises the student relied on, plus alternative approaches they may have
-                            overlooked.</p>
-                    </article>
-                    <article class="card reveal delay-4">
-                        <div class="icon-box"><i class="fa-solid fa-route"></i></div>
-                        <h3>Actionable Next Step</h3>
-                        <p>A core principle to review and a single targeted practice task designed to close the specific
-                            knowledge gap.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
+            <!-- ── SECTION 1: SYSTEM ARCHITECTURE ── -->
+            <section class="glass-panel" style="margin-bottom: 32px;">
+                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-diagram-project" style="color: var(--brand-secondary);"></i>
+                    1. End-to-End Processing Pipeline
+                </h2>
 
-        <!-- Testimonial / Summary -->
-        <section class="section" style="margin-top: 48px;">
-            <div class="container">
-                <div class="quote-card reveal">
-                    <div class="quote-title">The GradeFlow Promise</div>
-                    <p>Turn hours of manual grading into minutes of automated, consistent, and deeply educational
-                        feedback that helps every student improve.</p>
-                </div>
-            </div>
-        </section>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    Resume Radar operates as a robust, high-throughput pipeline designed to handle diverse resume formats without human fatigue or bias:
+                </p>
 
-        <!-- Final CTA -->
-        <section class="section final-cta" style="margin-top: 40px;">
-            <div class="container">
-                <div class="card reveal">
-                    <h2>Ready to grade smarter?</h2>
-                    <p>Upload assignments, let AI evaluate them, and review structured reports — all in one workflow.
-                    </p>
-                    <div class="cta-row">
-                        <a href="/grade.html" class="btn-primary">Start Grading →</a>
-                        <a href="/" class="btn-secondary">Back to Home</a>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-weight: 700; color: var(--brand-primary); margin-bottom: 6px;">Stage 1: Ingest</div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
+                            Batch fetches resumes from Google Drive or direct multipart upload. Supports PDF, DOCX, DOC, and TXT.
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-weight: 700; color: var(--brand-secondary); margin-bottom: 6px;">Stage 2: Extract</div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
+                            Gemini AI maps unstructured text into a validated JSON candidate schema with automated fallback models.
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-weight: 700; color: var(--success); margin-bottom: 6px;">Stage 3: Score</div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
+                            Transparent mathematical scoring formula evaluates candidates against JD criteria with alias mapping.
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="font-weight: 700; color: var(--warning); margin-bottom: 6px;">Stage 4: Decide</div>
+                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
+                            Exports Google Docs evaluation dossiers and enables recruiters to shortlist, reject, or schedule interviews.
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <!-- ── SECTION 2: TRANSPARENT FORMULA ── -->
+            <section class="glass-panel" style="margin-bottom: 32px; border-color: var(--border-brand);">
+                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-calculator" style="color: var(--brand-primary);"></i>
+                    2. The Deterministic Scoring Engine
+                </h2>
+
+                <p style="color: var(--text-secondary); margin-bottom: 18px;">
+                    Standard AI screeners output arbitrary, opaque scores that fail compliance and explainability standards. Resume Radar uses a deterministic mathematical formula where every point is auditable:
+                </p>
+
+                <div style="background: var(--bg-input); padding: 18px 22px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--brand-secondary); margin-bottom: 20px;">
+                    Final Score = (W_req × S_req) + (W_pref × S_pref) + (W_exp × S_exp) + (W_edu × S_edu) + (W_cert × S_cert)
+                </div>
+
+                <div style="line-height: 1.8; color: var(--text-secondary); font-size: 0.92rem;">
+                    <div>• <strong>Required Skills (40% default):</strong> Percentage of mandatory skills verified in the candidate's skills list, projects, or work history highlights. Uses alias normalization (e.g. <code>k8s</code> ↔ <code>kubernetes</code>, <code>js</code> ↔ <code>javascript</code>).</div>
+                    <div>• <strong>Preferred Skills (15% default):</strong> Bonus score awarded for nice-to-have capabilities.</div>
+                    <div>• <strong>Experience Match (25% default):</strong> Ratio of total verified years of experience compared to the job requirement (capped at 100%).</div>
+                    <div>• <strong>Education Match (10% default):</strong> Degree hierarchy comparison (High School = 1, Associate = 2, Bachelor's = 3, Master's = 4, PhD = 5).</div>
+                    <div>• <strong>Certifications & Credentials (10% default):</strong> Matches required industry credentials or verified project portfolio evidence.</div>
+                </div>
+            </section>
+
+            <!-- ── SECTION 3: GOOGLE DRIVE SETUP ── -->
+            <section class="glass-panel" style="margin-bottom: 32px;">
+                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-brands fa-google-drive" style="color: var(--brand-secondary);"></i>
+                    3. Google Drive Service Account Configuration
+                </h2>
+
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Follow these 4 simple steps to connect your Google Drive resume folder:
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; gap: 14px;">
+                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">1</span>
+                        <div>
+                            <div style="font-weight: 600;">Enable Google Drive & Docs APIs</div>
+                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                                In the <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--brand-secondary); text-decoration: underline;">Google Cloud Console</a>, enable both the <strong>Google Drive API</strong> and <strong>Google Docs API</strong>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px;">
+                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">2</span>
+                        <div>
+                            <div style="font-weight: 600;">Generate Service Account Key</div>
+                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                                Create a Service Account, generate a JSON Key, and save it as <code>backend/service-account.json</code> (or point the <code>GOOGLE_APPLICATION_CREDENTIALS</code> environment variable to it).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px;">
+                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">3</span>
+                        <div>
+                            <div style="font-weight: 600;">Share Your Drive Folder with the Service Account</div>
+                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                                Open your Google Drive resume folder, click <strong>Share</strong>, and paste your Service Account's email address (e.g., <code>your-app@project-id.iam.gserviceaccount.com</code>) with <strong>Viewer</strong> or <strong>Editor</strong> permissions.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 14px;">
+                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">4</span>
+                        <div>
+                            <div style="font-weight: 600;">Copy the Folder ID</div>
+                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                                The Folder ID is the string of characters at the end of your browser URL:
+                                <div style="background: var(--bg-input); padding: 8px 12px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; margin-top: 6px; color: var(--brand-secondary);">
+                                    https://drive.google.com/drive/folders/<strong>1a2B3c4D5e6F7g8H9i0jK</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── SECTION 4: API SPECIFICATION ── -->
+            <section class="glass-panel">
+                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-code" style="color: var(--success);"></i>
+                    4. REST API Specification
+                </h2>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api (or /process-batch)</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Batch screens resumes from Google Drive. Body: <code>{ inputFolderId, outputFolderId, maxFiles, jobCriteria, customWeights, generateDocs }</code>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/jobs/parse</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Extracts structured requirements from raw text or uploaded JD file (PDF/DOCX via <code>multipart/form-data</code>).
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/candidates/screen-file</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Directly evaluates a single uploaded resume file against job criteria.
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/candidates/review-status</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Updates human-in-the-loop candidate review status (<code>shortlisted</code>, <code>rejected</code>, <code>interview_scheduled</code>, <code>hold</code>).
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <span class="badge badge-info" style="font-size: 0.75rem;">GET</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/status & /health</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            Returns real-time service health, Gemini API key status, and Google Cloud credentials status.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-brand">GradeFlow</div>
-            <div class="footer-links">
-                <a href="/">Home</a>
-                <a href="/grade.html">Grade</a>
-                <a href="/guide.html">How It Works</a>
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 700;">Resume Radar</span>
+                <span>•</span>
+                <span>Platform Documentation</span>
             </div>
-            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
+            <a href="/grade.html" class="btn-primary btn-sm">Start Screening →</a>
         </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="config.js"></script>
     <script>
-        // Theme toggle
-        const toggle = document.getElementById('theme-toggle');
-        const html = document.documentElement;
-        const savedTheme = localStorage.getItem('GradeFlow-theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('rr_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', currentTheme);
 
-        toggle.addEventListener('click', () => {
-            const current = html.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', next);
-            localStorage.setItem('GradeFlow-theme', next);
-        });
-
-        // Reveal on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const active = document.documentElement.getAttribute('data-theme');
+                const nextTheme = active === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', nextTheme);
+                localStorage.setItem('rr_theme', nextTheme);
             });
-        }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
-
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
     </script>
 </body>
 

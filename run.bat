@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title GradeFlow - AI Assignment Feedback Assistant
+title Resume Radar - AI Candidate Screening & Analytics Platform
 
 echo ============================================================
-echo           GradeFlow FEEDBACK ASSISTANT
-echo   AI-Powered Assignment Evaluation and Diagnostic Reports
+echo                      RESUME RADAR
+echo   AI-Powered Candidate Screening & Recruitment Analytics
 echo ============================================================
 echo.
 
@@ -20,28 +20,16 @@ set "BACKEND_DIR="
 
 if exist "%ROOT_DIR%backend\server.js" (
     set "BACKEND_DIR=%ROOT_DIR%backend"
-) else if exist "%ROOT_DIR%GradeFlow-feedback\backend\server.js" (
-    set "BACKEND_DIR=%ROOT_DIR%GradeFlow-feedback\backend"
-) else if exist "%ROOT_DIR%vibecode-feedback\backend\server.js" (
-    set "BACKEND_DIR=%ROOT_DIR%vibecode-feedback\backend"
 ) else if exist "%ROOT_DIR%..\backend\server.js" (
     set "BACKEND_DIR=%ROOT_DIR%..\backend"
-) else (
-    for /d %%D in ("%ROOT_DIR%*") do (
-        if exist "%%D\backend\server.js" (
-            set "BACKEND_DIR=%%D\backend"
-        )
-    )
 )
 
 if not defined BACKEND_DIR (
     echo [ERROR] Could not find backend directory with server.js!
     echo Looked in:
     echo   - %ROOT_DIR%backend
-    echo   - %ROOT_DIR%GradeFlow-feedback\backend
-    echo   - %ROOT_DIR%vibecode-feedback\backend
     echo.
-    echo Please make sure run.bat is in the project folder.
+    echo Please make sure run.bat is executed from the project root folder.
     pause
     exit /b 1
 )
@@ -58,61 +46,48 @@ if !ERRORLEVEL! NEQ 0 (
 )
 
 for /f "tokens=*" %%v in ('node -v') do set "NODE_VER=%%v"
-echo [OK] Node.js found: %NODE_VER%
+echo [OK] Node.js detected: %NODE_VER%
 
-:: Step 2: Check backend dependencies
+:: Step 2: Check .env file
+if not exist "%BACKEND_DIR%\.env" (
+    if exist "%BACKEND_DIR%\.env.example" (
+        echo [INFO] No .env found. Creating .env from .env.example...
+        copy "%BACKEND_DIR%\.env.example" "%BACKEND_DIR%\.env" >nul
+        echo [OK] Created .env template in backend.
+        echo [!] Remember to configure your GEMINI_API_KEY in %BACKEND_DIR%\.env
+    ) else (
+        echo [WARNING] No .env file found in backend directory.
+    )
+) else (
+    echo [OK] Environment file (.env) found.
+)
+
+:: Step 3: Check node_modules and install dependencies if needed
 if not exist "%BACKEND_DIR%\node_modules" (
-    echo [INFO] node_modules not found. Installing dependencies...
+    echo [INFO] node_modules not found. Installing backend dependencies...
     pushd "%BACKEND_DIR%"
     call npm install
+    popd
     if !ERRORLEVEL! NEQ 0 (
-        echo [ERROR] npm install failed.
-        popd
+        echo [ERROR] npm install failed. Please check your internet connection and try again.
         pause
         exit /b 1
     )
-    popd
     echo [OK] Dependencies installed successfully.
 ) else (
-    echo [OK] Backend dependencies present.
+    echo [OK] Dependencies verified.
 )
-
-:: Step 3: Check .env file
-if not exist "%BACKEND_DIR%\.env" (
-    if exist "%BACKEND_DIR%\.env.example" (
-        echo [WARN] .env not found. Copying from .env.example...
-        copy "%BACKEND_DIR%\.env.example" "%BACKEND_DIR%\.env" >nul
-        echo [WARN] Please ensure your GEMINI_API_KEY is configured in %BACKEND_DIR%\.env
-    )
-) else (
-    echo [OK] Environment configuration present.
-)
-
-:: Step 4: Check service-account.json
-if not exist "%BACKEND_DIR%\service-account.json" (
-    echo [WARN] service-account.json not found in %BACKEND_DIR%!
-    echo        Google Drive and Docs integrations will require valid credentials.
-) else (
-    echo [OK] Service account credentials found.
-)
-
-:: Step 5: Clean up any stale process on port 8080
-for /f "tokens=5" %%a in ('netstat -aon 2^>nul ^| findstr :8080 ^| findstr LISTENING') do (
-    echo [INFO] Port 8080 in use by PID %%a. Freeing port...
-    taskkill /F /PID %%a >nul 2>nul
-)
-
-:: Step 6: Launch browser after 2 seconds in background
-start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:8080"
 
 echo.
 echo ============================================================
-echo   Starting server at http://localhost:8080 ...
-echo   Default browser will open automatically in 2 seconds.
-echo   Press Ctrl+C anytime in this window to stop the server.
+echo   Starting Resume Radar server on http://localhost:8080 ...
 echo ============================================================
 echo.
 
+:: Step 4: Launch Browser after brief delay
+start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:8080"
+
+:: Step 5: Start Express Server
 cd /d "%BACKEND_DIR%"
 node server.js
 
