@@ -1,280 +1,250 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Batch Screening — Resume Radar</title>
+    <title>Screen Resumes — Resume Radar</title>
     <meta name="description"
         content="Batch ingest candidate resumes from Google Drive, calculate transparent deterministic match scores, and review explainable AI talent evaluations.">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('rr_theme') || 'light');
+    </script>
 </head>
 
 <body>
 
-    <!-- ── NAVIGATION BAR ── -->
     <nav class="navbar">
-        <div class="container nav-container">
-            <a class="logo" href="/">
-                <div class="logo-icon-wrapper">
-                    <i class="fa-solid fa-crosshairs"></i>
-                    <div class="logo-radar-sweep"></div>
-                </div>
-                <span>Resume Radar</span>
-                <span class="logo-badge">PRO</span>
-            </a>
-
-            <div class="nav-links">
-                <a href="/" class="nav-link">
-                    <i class="fa-solid fa-house"></i> Home
-                </a>
-                <a href="/job.html" class="nav-link">
-                    <i class="fa-solid fa-briefcase"></i> Job Criteria
-                </a>
-                <a href="/grade.html" class="nav-link active">
-                    <i class="fa-solid fa-layer-group"></i> Screen Batch
-                </a>
-                <a href="/analytics.html" class="nav-link">
-                    <i class="fa-solid fa-chart-pie"></i> Analytics
-                </a>
-                <a href="/guide.html" class="nav-link">
-                    <i class="fa-solid fa-book-open"></i> How It Works
-                </a>
-            </div>
-
-            <div class="nav-actions">
-                <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
-                    <i class="fa-solid fa-moon icon-moon"></i>
-                    <i class="fa-solid fa-sun icon-sun"></i>
-                </button>
-                <a href="/job.html" class="btn-secondary btn-sm">
-                    <i class="fa-solid fa-sliders"></i> Edit Criteria
-                </a>
-            </div>
+        <a class="logo" href="/">
+            <div class="logo-icon">R</div>
+            Resume Radar
+        </a>
+        <div class="nav-links">
+            <a href="/" class="hide-mobile">Home</a>
+            <a href="/job.html" class="hide-mobile">Job Criteria</a>
+            <a href="/grade.html" class="hide-mobile active-link">Screen Resumes</a>
+            <a href="/analytics.html" class="hide-mobile">Analytics</a>
+            <a href="/guide.html" class="hide-mobile">How It Works</a>
+            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                <i class="fa-solid fa-moon icon-moon"></i>
+                <i class="fa-solid fa-sun icon-sun"></i>
+            </button>
         </div>
     </nav>
 
-    <!-- ── MAIN CONTENT ── -->
-    <main style="padding: 36px 0 80px;">
-        <div class="container">
+    <main>
+        <section class="grade-section">
+            <div class="container">
 
-            <!-- ── ACTIVE JOB CRITERIA BANNER ── -->
-            <div class="glass-panel" style="margin-bottom: 28px; border-color: var(--border-brand); background: rgba(99, 102, 241, 0.06);">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                            <span class="badge badge-success">Target Job Profile</span>
-                            <span id="activeJobDept" style="font-size: 0.82rem; color: var(--text-muted);">Engineering</span>
+                <!-- Active Job Criteria Banner -->
+                <div class="grade-card reveal" style="margin-bottom: 28px; border-left: 3px solid var(--accent);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <span class="badge success">Target Job Profile</span>
+                                <span id="activeJobDept" style="font-size: 0.82rem; color: var(--text-muted);">Engineering</span>
+                            </div>
+                            <h2 id="activeJobTitle" style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.5rem; margin-bottom: 4px;">Senior Full Stack Engineer</h2>
+                            <div id="activeJobMeta" style="font-size: 0.88rem; color: var(--text-muted);">
+                                Evaluating: 6 Required Skills • 5 Preferred Skills • 4+ Yrs Exp • Bachelor's
+                            </div>
                         </div>
-                        <h2 id="activeJobTitle" style="font-size: 1.5rem; margin-bottom: 4px;">Senior Full Stack Engineer</h2>
-                        <div id="activeJobMeta" style="font-size: 0.88rem; color: var(--text-secondary);">
-                            Evaluating: 6 Required Skills • 5 Preferred Skills • 4+ Yrs Exp • Bachelor's
+                        <div>
+                            <a href="/job.html" class="btn-outline btn-sm">
+                                <i class="fa-solid fa-pen-to-square"></i> Change Criteria
+                            </a>
                         </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <a href="/job.html" class="btn-outline btn-sm">
-                            <i class="fa-solid fa-pen-to-square"></i> Change Criteria
-                        </a>
                     </div>
                 </div>
-            </div>
 
-            <!-- ── SCREENING INGESTION LAUNCHPAD ── -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 28px; margin-bottom: 36px; align-items: start;">
+                <!-- Ingestion Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 36px; align-items: start;">
 
-                <!-- Form Card: Batch from Google Drive -->
-                <div class="glass-panel">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                        <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                            <i class="fa-brands fa-google-drive" style="color: var(--brand-secondary);"></i>
-                            Batch Screen from Google Drive
-                        </h3>
-                        <span class="badge badge-info">Multi-File</span>
-                    </div>
-
-                    <form id="processForm">
-                        <div class="form-group">
-                            <label class="form-label" for="inputFolderId">
-                                <span>Google Drive Resume Folder ID</span>
-                                <span class="form-help">Shared with Service Account</span>
-                            </label>
-                            <input type="text" id="inputFolderId" class="form-input" placeholder="e.g. 1a2B3c4D5e6F7g8H9i0jK..." required>
-                            <div class="form-help" style="margin-top: 4px;">
-                                Contains candidate resumes (.pdf, .docx, .txt, or Google Docs).
-                            </div>
+                    <!-- Batch from Google Drive -->
+                    <div class="grade-card reveal delay-1" style="max-width: none;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-brands fa-google-drive" style="color: var(--accent);"></i>
+                                Batch Screen from Google Drive
+                            </h3>
+                            <span class="badge info">Multi-File</span>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="outputDocId">
-                                <span>Export Google Doc ID / Folder (Optional)</span>
-                                <span class="form-help">Reports Destination</span>
-                            </label>
-                            <input type="text" id="outputDocId" class="form-input" placeholder="Leave blank to generate dossiers in-memory, or provide Google Doc ID">
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label class="form-label" for="maxFiles">Resumes to Screen</label>
-                                <input type="number" id="maxFiles" class="form-input" value="5" min="1" max="25" required>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center;">
-                                <label class="form-label" style="margin-bottom: 8px;">Export Reports</label>
-                                <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer;">
-                                    <input type="checkbox" id="generateDocsCheckbox" style="accent-color: var(--brand-primary);" checked>
-                                    Create Google Docs
+                        <form id="processForm">
+                            <div class="form-group">
+                                <label for="inputFolderId">
+                                    <i class="fa-solid fa-folder-open" style="color: var(--accent); margin-right: 6px;"></i>Resume Folder ID
                                 </label>
+                                <input type="text" id="inputFolderId" placeholder="e.g. 1a2B3c4D5e6F7g8H9i0jK..." required>
+                                <span class="hint">Google Drive folder with candidate resumes (.pdf, .docx, .txt).</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="outputDocId">
+                                    <i class="fa-solid fa-file-lines" style="color: var(--accent); margin-right: 6px;"></i>Export Doc ID (Optional)
+                                </label>
+                                <input type="text" id="outputDocId" placeholder="Leave blank for in-memory, or provide Google Doc ID">
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="maxFiles">Resumes to Screen</label>
+                                    <input type="number" id="maxFiles" value="5" min="1" max="25" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center;">
+                                    <label style="margin-bottom: 8px;">Export Reports</label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer; font-weight: 400;">
+                                        <input type="checkbox" id="generateDocsCheckbox" style="accent-color: var(--accent);" checked>
+                                        Create Google Docs
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="submitBtn" class="btn-accent" style="width: 100%; margin-top: 8px;">
+                                <span class="btn-text">Start Batch Talent Screening</span>
+                                <div class="spinner hidden" id="loadingSpinner"></div>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Direct Upload Card -->
+                    <div class="grade-card reveal delay-2" style="max-width: none;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-file-arrow-up" style="color: var(--accent);"></i>
+                                Direct Resume Upload
+                            </h3>
+                            <span class="badge success">Instant</span>
+                        </div>
+
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+                            Test an individual candidate resume directly from your computer without configuring a Google Drive folder.
+                        </p>
+
+                        <div class="dropzone" id="singleResumeDropzone">
+                            <i class="fa-solid fa-id-card-clip dropzone-icon"></i>
+                            <div style="font-weight: 600;">Drag & drop candidate resume here</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">PDF, DOCX, or TXT (Max 15MB)</div>
+                            <input type="file" id="singleResumeInput" accept=".pdf,.docx,.txt" style="display: none;">
+                            <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('singleResumeInput').click()">
+                                Select Resume
+                            </button>
+                            <div id="singleSelectedName" style="font-size: 0.88rem; color: var(--accent); font-weight: 500; display: none;"></div>
+                        </div>
+
+                        <button type="button" id="singleScreenBtn" class="btn-secondary" style="width: 100%; margin-top: 18px;" disabled>
+                            <span id="singleBtnText"><i class="fa-solid fa-bolt"></i> Screen Uploaded Resume</span>
+                            <div class="spinner" id="singleSpinner" style="display: none;"></div>
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Results Dashboard -->
+                <div id="resultsSection" style="display: none;">
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem; margin-bottom: 4px;">Candidate Screening Results</h2>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">
+                                Candidates ranked by explainable mathematical match score descending.
                             </div>
                         </div>
-
-                        <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">
-                            <span class="btn-text">
-                                <i class="fa-solid fa-radar"></i> Start Batch Talent Screening
-                            </span>
-                            <div class="spinner" id="loadingSpinner" style="display: none;"></div>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Card: Single Resume Direct Screen -->
-                <div class="glass-panel">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                        <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                            <i class="fa-solid fa-file-arrow-up" style="color: var(--brand-primary);"></i>
-                            Direct Resume Upload & Screen
-                        </h3>
-                        <span class="badge badge-success">Instant 1-Off</span>
-                    </div>
-
-                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
-                        Test an individual candidate resume directly from your computer without configuring a Google Drive folder.
-                    </p>
-
-                    <div class="dropzone" id="singleResumeDropzone">
-                        <i class="fa-solid fa-id-card-clip dropzone-icon"></i>
-                        <div style="font-weight: 600;">Drag & drop candidate resume here</div>
-                        <div style="font-size: 0.82rem; color: var(--text-muted);">PDF, DOCX, or TXT (Max 15MB)</div>
-                        <input type="file" id="singleResumeInput" accept=".pdf,.docx,.txt" style="display: none;">
-                        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('singleResumeInput').click()">
-                            Select Resume
-                        </button>
-                        <div id="singleSelectedName" style="font-size: 0.88rem; color: var(--brand-secondary); font-weight: 500; display: none;"></div>
-                    </div>
-
-                    <button type="button" id="singleScreenBtn" class="btn-secondary" style="width: 100%; margin-top: 18px;" disabled>
-                        <span id="singleBtnText"><i class="fa-solid fa-bolt"></i> Screen Uploaded Resume</span>
-                        <div class="spinner" id="singleSpinner" style="display: none;"></div>
-                    </button>
-                </div>
-
-            </div>
-
-            <!-- ── RESULTS DASHBOARD ── -->
-            <div id="resultsSection" style="display: none;">
-
-                <!-- Section Header with Filters & Actions -->
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
-                    <div>
-                        <h2 style="font-size: 1.8rem; margin-bottom: 4px;">Candidate Screening Results</h2>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
-                            Candidates ranked by explainable mathematical match score descending.
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <button type="button" id="exportCsvBtn" class="btn-outline btn-sm">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </button>
+                            <a href="/analytics.html" id="goToAnalyticsBtn" class="btn-primary btn-sm">
+                                <i class="fa-solid fa-chart-line"></i> View Pool Analytics →
+                            </a>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                        <button type="button" id="exportCsvBtn" class="btn-outline btn-sm">
-                            <i class="fa-solid fa-file-csv"></i> Export CSV
-                        </button>
-                        <a href="/analytics.html" id="goToAnalyticsBtn" class="btn-primary btn-sm">
-                            <i class="fa-solid fa-chart-line"></i> View Pool Analytics →
-                        </a>
+                    <!-- Summary Stats -->
+                    <div class="summary-cards" style="margin-bottom: 28px;">
+                        <div class="summary-card">
+                            <div class="summary-value" id="summaryTotal">0</div>
+                            <div class="summary-label">Total Evaluated</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="summaryAvgScore" style="color: var(--accent);">0%</div>
+                            <div class="summary-label">Average Pool Score</div>
+                        </div>
+                        <div class="summary-card success">
+                            <div class="summary-value" id="summaryTopMatches">0</div>
+                            <div class="summary-label">Top Matches (85%+)</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="summaryShortlisted" style="color: var(--accent);">0</div>
+                            <div class="summary-label">Shortlisted</div>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Aggregate Summary Stats -->
-                <div class="stat-grid" style="margin-top: 0; margin-bottom: 28px;">
-                    <div class="stat-card">
-                        <div class="stat-value" id="summaryTotal">0</div>
-                        <div class="stat-label">Total Evaluated</div>
+                    <!-- Table Filters -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 360px;">
+                            <input type="text" id="candidateSearchInput" placeholder="Search by name, role, or skill..." style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-light); border-radius: var(--radius-xs); background: var(--bg-subtle); color: var(--text-dark); font-family: inherit; font-size: 0.88rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <select id="scoreTierFilter" style="padding: 10px 14px; border: 1px solid var(--border-light); border-radius: var(--radius-xs); background: var(--bg-subtle); color: var(--text-dark); font-family: inherit; font-size: 0.88rem;">
+                                <option value="all">All Match Scores</option>
+                                <option value="top">Top Tier (85%+)</option>
+                                <option value="good">Good Tier (70-84%)</option>
+                                <option value="moderate">Moderate Tier (50-69%)</option>
+                                <option value="low">Low (<50%)</option>
+                            </select>
+                            <select id="statusFilter" style="padding: 10px 14px; border: 1px solid var(--border-light); border-radius: var(--radius-xs); background: var(--bg-subtle); color: var(--text-dark); font-family: inherit; font-size: 0.88rem;">
+                                <option value="all">All Statuses</option>
+                                <option value="shortlisted">Shortlisted</option>
+                                <option value="interview_scheduled">Interview</option>
+                                <option value="hold">Hold</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="unreviewed">Unreviewed</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value gradient-text" id="summaryAvgScore">0%</div>
-                        <div class="stat-label">Average Pool Score</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="summaryTopMatches" style="color: var(--success);">0</div>
-                        <div class="stat-label">Top Matches (85%+)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="summaryShortlisted" style="color: var(--brand-secondary);">0</div>
-                        <div class="stat-label">Shortlisted Candidates</div>
-                    </div>
-                </div>
 
-                <!-- Table Filters -->
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 360px;">
-                        <input type="text" id="candidateSearchInput" class="form-input" placeholder="Search by name, role, or skill..." style="padding: 8px 14px; font-size: 0.88rem;">
+                    <!-- Candidate Results Table -->
+                    <div class="table-container">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">Rank</th>
+                                    <th>Candidate</th>
+                                    <th>Match Score</th>
+                                    <th>Category Breakdown</th>
+                                    <th>Matched / Missing Skills</th>
+                                    <th>Decision Checkpoint</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody">
+                                <!-- Populated dynamically by app.js -->
+                            </tbody>
+                        </table>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <select id="scoreTierFilter" class="form-select" style="padding: 8px 12px; font-size: 0.88rem; width: auto;">
-                            <option value="all">All Match Scores</option>
-                            <option value="top">Top Tier (85%+)</option>
-                            <option value="good">Good Tier (70-84%)</option>
-                            <option value="moderate">Moderate Tier (50-69%)</option>
-                            <option value="low">Low (<50%)</option>
-                        </select>
-                        <select id="statusFilter" class="form-select" style="padding: 8px 12px; font-size: 0.88rem; width: auto;">
-                            <option value="all">All Review Statuses</option>
-                            <option value="shortlisted">Shortlisted</option>
-                            <option value="interview_scheduled">Interview</option>
-                            <option value="hold">Hold</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="unreviewed">Unreviewed</option>
-                        </select>
-                    </div>
-                </div>
 
-                <!-- Candidate Results Table -->
-                <div class="table-wrapper">
-                    <table class="custom-table" id="resultsTable">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px;">Rank</th>
-                                <th>Candidate</th>
-                                <th>Match Score</th>
-                                <th>Category Breakdown</th>
-                                <th>Matched / Missing Skills</th>
-                                <th>Decision Checkpoint</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody">
-                            <!-- Populated dynamically by app.js -->
-                        </tbody>
-                    </table>
                 </div>
 
             </div>
-
-        </div>
+        </section>
     </main>
 
-    <!-- ── CANDIDATE DEEP-DIVE MODAL ── -->
-    <div id="candidateModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); padding: 24px; overflow-y: auto;">
-        <div style="max-width: 840px; margin: 40px auto; background: var(--bg-surface); border: 1px solid var(--border-brand); border-radius: var(--radius-md); padding: 32px; box-shadow: var(--shadow-lg); position: relative;">
-            
-            <!-- Close Button -->
+    <!-- Candidate Deep-Dive Modal -->
+    <div id="candidateModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); padding: 24px; overflow-y: auto;">
+        <div style="max-width: 840px; margin: 40px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow-lg); position: relative;">
+
             <button type="button" id="closeModalBtn" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">
                 &times;
             </button>
 
-            <!-- Modal Header -->
             <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px;">
                 <div>
-                    <span id="modalFitBadge" class="badge badge-success" style="margin-bottom: 6px;">Strong Match</span>
-                    <h2 id="modalCandidateName" style="font-size: 1.8rem;">Candidate Name</h2>
-                    <div id="modalContact" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
+                    <span id="modalFitBadge" class="badge success" style="margin-bottom: 6px;">Strong Match</span>
+                    <h2 id="modalCandidateName" style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem;">Candidate Name</h2>
+                    <div id="modalContact" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
                         email@example.com • +1 234 567 8900
                     </div>
                 </div>
@@ -287,27 +257,27 @@
             </div>
 
             <!-- Formula Breakdown -->
-            <div style="background: var(--bg-input); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--brand-secondary); margin-bottom: 24px;" id="modalFormula">
+            <div style="background: var(--bg-subtle); padding: 14px 18px; border-radius: var(--radius-xs); border: 1px solid var(--border-light); font-family: monospace; font-size: 0.85rem; color: var(--accent); margin-bottom: 24px;" id="modalFormula">
                 Match Score: 92.5% = (40/40 Req) + (7.5/15 Pref) + (25/25 Exp) + (10/10 Edu) + (10/10 Certs)
             </div>
 
-            <!-- Summary & Highlights -->
+            <!-- Summary -->
             <div style="margin-bottom: 24px;">
-                <h4 style="font-size: 1.05rem; margin-bottom: 8px;">Professional Summary</h4>
-                <p id="modalSummary" style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.6;">
+                <h4 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.05rem; margin-bottom: 8px;">Professional Summary</h4>
+                <p id="modalSummary" style="color: var(--text-muted); font-size: 0.94rem; line-height: 1.6;">
                     Summary text...
                 </p>
             </div>
 
             <!-- Skills Comparison -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-                <div style="background: var(--bg-card); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div style="background: var(--bg-subtle); padding: 16px; border-radius: var(--radius-xs); border: 1px solid var(--border-light);">
                     <div style="font-weight: 700; color: var(--success); font-size: 0.9rem; margin-bottom: 10px;">
                         <i class="fa-solid fa-check"></i> Matched Required Skills
                     </div>
                     <div id="modalMatchedSkills"></div>
                 </div>
-                <div style="background: var(--bg-card); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                <div style="background: var(--bg-subtle); padding: 16px; border-radius: var(--radius-xs); border: 1px solid var(--border-light);">
                     <div style="font-weight: 700; color: var(--danger); font-size: 0.9rem; margin-bottom: 10px;">
                         <i class="fa-solid fa-xmark"></i> Missing Required Skills
                     </div>
@@ -316,33 +286,33 @@
             </div>
 
             <!-- AI Qualitative Feedback -->
-            <div style="background: var(--bg-card); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 24px;">
-                <h4 style="font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-brain" style="color: var(--brand-secondary);"></i>
-                    AI Qualitative Assessment & Targeted Interview Questions
+            <div style="background: var(--bg-subtle); padding: 20px; border-radius: var(--radius-xs); border: 1px solid var(--border-light); margin-bottom: 24px;">
+                <h4 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-brain" style="color: var(--accent);"></i>
+                    AI Assessment & Interview Questions
                 </h4>
-                
+
                 <div style="margin-bottom: 14px;">
-                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">Key Strengths:</div>
-                    <div id="modalStrengths" style="color: var(--text-secondary); font-size: 0.9rem;"></div>
+                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">Key Strengths:</div>
+                    <div id="modalStrengths" style="color: var(--text-muted); font-size: 0.9rem;"></div>
                 </div>
 
                 <div style="margin-bottom: 14px;">
-                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 6px;">Gaps & Risk Factors:</div>
-                    <div id="modalGaps" style="color: var(--text-secondary); font-size: 0.9rem;"></div>
+                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-dark); margin-bottom: 6px;">Gaps & Risk Factors:</div>
+                    <div id="modalGaps" style="color: var(--text-muted); font-size: 0.9rem;"></div>
                 </div>
 
                 <div>
-                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--brand-secondary); margin-bottom: 8px;">Suggested Probe Questions:</div>
+                    <div style="font-weight: 600; font-size: 0.88rem; color: var(--accent); margin-bottom: 8px;">Suggested Probe Questions:</div>
                     <div id="modalQuestions" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
             </div>
 
-            <!-- Recruiter Decision Checkpoint -->
-            <div style="border-top: 1px solid var(--border); padding-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <!-- Recruiter Decision -->
+            <div style="border-top: 1px solid var(--border-light); padding-top: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-weight: 600; font-size: 0.9rem;">Review Decision:</span>
-                    <select id="modalStatusSelect" class="form-select" style="width: auto; padding: 6px 12px;">
+                    <select id="modalStatusSelect" style="padding: 8px 14px; border: 1px solid var(--border-light); border-radius: var(--radius-xs); background: var(--bg-subtle); color: var(--text-dark); font-family: inherit; font-size: 0.88rem;">
                         <option value="unreviewed">Unreviewed</option>
                         <option value="shortlisted">Shortlist for Interview</option>
                         <option value="interview_scheduled">Schedule Interview</option>
@@ -350,12 +320,11 @@
                         <option value="rejected">Reject</option>
                     </select>
                 </div>
-
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <button type="button" id="modalDocBtn" class="btn-outline btn-sm">
                         <i class="fa-solid fa-file-word"></i> Open / Generate Google Doc
                     </button>
-                    <button type="button" id="modalSaveDecisionBtn" class="btn-primary btn-sm">
+                    <button type="button" id="modalSaveDecisionBtn" class="btn-accent btn-sm">
                         <i class="fa-solid fa-floppy-disk"></i> Save Decision
                     </button>
                 </div>
@@ -364,23 +333,49 @@
         </div>
     </div>
 
-    <!-- ── FOOTER ── -->
-    <footer class="footer">
-        <div class="container footer-content">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-weight: 700;">Resume Radar</span>
-                <span>•</span>
-                <span>Screening Engine</span>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">Resume Radar</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/job.html">Job Criteria</a>
+                <a href="/grade.html">Screen Resumes</a>
+                <a href="/analytics.html">Analytics</a>
+                <a href="/guide.html">How It Works</a>
             </div>
-            <div style="color: var(--text-muted); font-size: 0.82rem;">
-                Deterministic Match Scores • 100% Explainable
-            </div>
+            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="config.js"></script>
     <script src="app.js"></script>
+    <script>
+        // Theme toggle
+        const toggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('rr_theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const current = html.getAttribute('data-theme') || 'light';
+                const next = current === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', next);
+                localStorage.setItem('rr_theme', next);
+            });
+        }
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-slow').forEach(el => observer.observe(el));
+    </script>
 </body>
 
 </html>

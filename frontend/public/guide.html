@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -8,181 +8,197 @@
     <meta name="description"
         content="Complete system architecture, Google Drive setup, deterministic scoring formula, and API reference for Resume Radar.">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
-    <!-- ── NAVIGATION BAR ── -->
     <nav class="navbar">
-        <div class="container nav-container">
-            <a class="logo" href="/">
-                <div class="logo-icon-wrapper">
-                    <i class="fa-solid fa-crosshairs"></i>
-                    <div class="logo-radar-sweep"></div>
-                </div>
-                <span>Resume Radar</span>
-                <span class="logo-badge">PRO</span>
-            </a>
-
-            <div class="nav-links">
-                <a href="/" class="nav-link">
-                    <i class="fa-solid fa-house"></i> Home
-                </a>
-                <a href="/job.html" class="nav-link">
-                    <i class="fa-solid fa-briefcase"></i> Job Criteria
-                </a>
-                <a href="/grade.html" class="nav-link">
-                    <i class="fa-solid fa-layer-group"></i> Screen Batch
-                </a>
-                <a href="/analytics.html" class="nav-link">
-                    <i class="fa-solid fa-chart-pie"></i> Analytics
-                </a>
-                <a href="/guide.html" class="nav-link active">
-                    <i class="fa-solid fa-book-open"></i> How It Works
-                </a>
-            </div>
-
-            <div class="nav-actions">
-                <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
-                    <i class="fa-solid fa-moon icon-moon"></i>
-                    <i class="fa-solid fa-sun icon-sun"></i>
-                </button>
-                <a href="/grade.html" class="btn-primary btn-sm">
-                    <i class="fa-solid fa-bolt"></i> Screen Batch
-                </a>
-            </div>
+        <a class="logo" href="/">
+            <div class="logo-icon">R</div>
+            Resume Radar
+        </a>
+        <div class="nav-links">
+            <a href="/" class="hide-mobile">Home</a>
+            <a href="/job.html" class="hide-mobile">Job Criteria</a>
+            <a href="/grade.html" class="hide-mobile">Screen Resumes</a>
+            <a href="/analytics.html" class="hide-mobile">Analytics</a>
+            <a href="/guide.html" class="hide-mobile active-link">How It Works</a>
+            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                <i class="fa-solid fa-moon icon-moon"></i>
+                <i class="fa-solid fa-sun icon-sun"></i>
+            </button>
         </div>
     </nav>
 
     <!-- ── MAIN CONTENT ── -->
     <main style="padding: 40px 0 80px;">
-        <div class="container" style="max-width: 980px;">
+        <div class="container" style="max-width: 1040px;">
 
             <!-- Header -->
-            <div style="text-align: center; margin-bottom: 48px;">
-                <div class="hero-badge-pill" style="margin-bottom: 16px;">
-                    <i class="fa-solid fa-book-bookmark"></i> Documentation & Operations
-                </div>
-                <h1 style="font-size: 2.6rem; margin-bottom: 12px;">System Architecture & Setup Guide</h1>
-                <p style="color: var(--text-secondary); max-width: 700px; margin: 0 auto; font-size: 1.05rem;">
-                    Everything you need to know about Resume Radar: the 4-stage pipeline, deterministic scoring formula, Google Drive Service Account integration, and API endpoints.
+            <div style="text-align: center; margin-bottom: 52px;" class="reveal">
+                <p class="eyebrow"><i class="fa-solid fa-book-bookmark"></i> Documentation & Operations</p>
+                <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(2.2rem, 4.5vw, 3.2rem); font-weight: 700; margin-bottom: 14px; letter-spacing: -0.02em;">
+                    System Architecture & Setup Guide
+                </h1>
+                <p style="color: var(--text-muted); max-width: 720px; margin: 0 auto; font-size: 1.05rem; line-height: 1.7;">
+                    Everything you need to know about Resume Radar: the 4-stage pipeline, deterministic scoring formula, Google Drive Service Account integration, and REST API specification.
                 </p>
             </div>
 
             <!-- ── SECTION 1: SYSTEM ARCHITECTURE ── -->
-            <section class="glass-panel" style="margin-bottom: 32px;">
-                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-diagram-project" style="color: var(--brand-secondary);"></i>
-                    1. End-to-End Processing Pipeline
-                </h2>
+            <section class="grade-card reveal delay-1" style="max-width: none; margin-bottom: 36px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="feature-icon" style="margin-bottom: 0; width: 40px; height: 40px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-diagram-project" style="color: var(--accent);"></i>
+                        </div>
+                        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.4rem;">1. End-to-End Processing Pipeline</h2>
+                    </div>
+                    <span class="badge info">Core Pipeline</span>
+                </div>
 
-                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">
                     Resume Radar operates as a robust, high-throughput pipeline designed to handle diverse resume formats without human fatigue or bias:
                 </p>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--brand-primary); margin-bottom: 6px;">Stage 1: Ingest</div>
-                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
-                            Batch fetches resumes from Google Drive or direct multipart upload. Supports PDF, DOCX, DOC, and TXT.
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
+                    <div style="background: var(--bg-subtle); padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: var(--transition);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">Stage 1: Ingest</span>
+                            <i class="fa-solid fa-cloud-arrow-up" style="color: var(--accent); opacity: 0.7;"></i>
                         </div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
+                            Batch fetches resumes from Google Drive or direct multipart upload. Supports PDF, DOCX, DOC, and TXT files seamlessly.
+                        </p>
                     </div>
-                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--brand-secondary); margin-bottom: 6px;">Stage 2: Extract</div>
-                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
-                            Gemini AI maps unstructured text into a validated JSON candidate schema with automated fallback models.
+
+                    <div style="background: var(--bg-subtle); padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: var(--transition);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">Stage 2: Extract</span>
+                            <i class="fa-solid fa-brain" style="color: var(--accent); opacity: 0.7;"></i>
                         </div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
+                            Gemini AI maps unstructured text into a validated candidate schema with automated fallback models and error recovery.
+                        </p>
                     </div>
-                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--success); margin-bottom: 6px;">Stage 3: Score</div>
-                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
-                            Transparent mathematical scoring formula evaluates candidates against JD criteria with alias mapping.
+
+                    <div style="background: var(--bg-subtle); padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: var(--transition);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: var(--success); font-size: 0.95rem;">Stage 3: Score</span>
+                            <i class="fa-solid fa-calculator" style="color: var(--success); opacity: 0.7;"></i>
                         </div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
+                            Transparent mathematical scoring formula evaluates candidates against JD criteria with comprehensive alias mapping.
+                        </p>
                     </div>
-                    <div style="background: var(--bg-card); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="font-weight: 700; color: var(--warning); margin-bottom: 6px;">Stage 4: Decide</div>
-                        <div style="font-size: 0.88rem; color: var(--text-secondary);">
-                            Exports Google Docs evaluation dossiers and enables recruiters to shortlist, reject, or schedule interviews.
+
+                    <div style="background: var(--bg-subtle); padding: 22px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); transition: var(--transition);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">Stage 4: Decide</span>
+                            <i class="fa-solid fa-file-lines" style="color: var(--accent); opacity: 0.7;"></i>
                         </div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; margin: 0;">
+                            Exports Google Docs evaluation dossiers and enables recruiters to shortlist, reject, or schedule interviews in real time.
+                        </p>
                     </div>
                 </div>
             </section>
 
             <!-- ── SECTION 2: TRANSPARENT FORMULA ── -->
-            <section class="glass-panel" style="margin-bottom: 32px; border-color: var(--border-brand);">
-                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-calculator" style="color: var(--brand-primary);"></i>
-                    2. The Deterministic Scoring Engine
-                </h2>
+            <section class="grade-card reveal delay-2" style="max-width: none; margin-bottom: 36px; border-left: 3px solid var(--accent);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="feature-icon" style="margin-bottom: 0; width: 40px; height: 40px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-calculator" style="color: var(--accent);"></i>
+                        </div>
+                        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.4rem;">2. The Deterministic Scoring Engine</h2>
+                    </div>
+                    <span class="badge success">100% Auditable</span>
+                </div>
 
-                <p style="color: var(--text-secondary); margin-bottom: 18px;">
+                <p style="color: var(--text-muted); margin-bottom: 20px; line-height: 1.6;">
                     Standard AI screeners output arbitrary, opaque scores that fail compliance and explainability standards. Resume Radar uses a deterministic mathematical formula where every point is auditable:
                 </p>
 
-                <div style="background: var(--bg-input); padding: 18px 22px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--brand-secondary); margin-bottom: 20px;">
-                    Final Score = (W_req × S_req) + (W_pref × S_pref) + (W_exp × S_exp) + (W_edu × S_edu) + (W_cert × S_cert)
+                <div style="background: var(--bg-subtle); padding: 18px 24px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 24px; overflow-x: auto;">
+                    <strong style="color: var(--accent);">Final Score</strong> = (W_req × S_req) + (W_pref × S_pref) + (W_exp × S_exp) + (W_edu × S_edu) + (W_cert × S_cert)
                 </div>
 
-                <div style="line-height: 1.8; color: var(--text-secondary); font-size: 0.92rem;">
-                    <div>• <strong>Required Skills (40% default):</strong> Percentage of mandatory skills verified in the candidate's skills list, projects, or work history highlights. Uses alias normalization (e.g. <code>k8s</code> ↔ <code>kubernetes</code>, <code>js</code> ↔ <code>javascript</code>).</div>
-                    <div>• <strong>Preferred Skills (15% default):</strong> Bonus score awarded for nice-to-have capabilities.</div>
-                    <div>• <strong>Experience Match (25% default):</strong> Ratio of total verified years of experience compared to the job requirement (capped at 100%).</div>
-                    <div>• <strong>Education Match (10% default):</strong> Degree hierarchy comparison (High School = 1, Associate = 2, Bachelor's = 3, Master's = 4, PhD = 5).</div>
-                    <div>• <strong>Certifications & Credentials (10% default):</strong> Matches required industry credentials or verified project portfolio evidence.</div>
+                <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.92rem; color: var(--text-muted); line-height: 1.65;">
+                    <div style="padding: 12px 16px; background: var(--bg-subtle); border-radius: var(--radius-xs); border-left: 3px solid var(--accent);">
+                        <strong style="color: var(--text-dark);">Required Skills (40% default):</strong> Percentage of mandatory skills verified in the candidate's skills list, projects, or work history highlights. Uses bidirectional alias normalization (e.g. <code>k8s</code> ↔ <code>kubernetes</code>, <code>js</code> ↔ <code>javascript</code>).
+                    </div>
+                    <div style="padding: 12px 16px; background: var(--bg-subtle); border-radius: var(--radius-xs); border-left: 3px solid var(--accent);">
+                        <strong style="color: var(--text-dark);">Preferred Skills (15% default):</strong> Bonus score awarded for secondary, nice-to-have capabilities requested in the role.
+                    </div>
+                    <div style="padding: 12px 16px; background: var(--bg-subtle); border-radius: var(--radius-xs); border-left: 3px solid var(--accent);">
+                        <strong style="color: var(--text-dark);">Experience Match (25% default):</strong> Ratio of total verified years of domain experience compared to the job requirement (capped at 100%).
+                    </div>
+                    <div style="padding: 12px 16px; background: var(--bg-subtle); border-radius: var(--radius-xs); border-left: 3px solid var(--accent);">
+                        <strong style="color: var(--text-dark);">Education Match (10% default):</strong> Degree hierarchy comparison (High School = 1, Associate = 2, Bachelor's = 3, Master's = 4, PhD = 5).
+                    </div>
+                    <div style="padding: 12px 16px; background: var(--bg-subtle); border-radius: var(--radius-xs); border-left: 3px solid var(--accent);">
+                        <strong style="color: var(--text-dark);">Certifications & Credentials (10% default):</strong> Matches required industry credentials or verified portfolio project evidence.
+                    </div>
                 </div>
             </section>
 
             <!-- ── SECTION 3: GOOGLE DRIVE SETUP ── -->
-            <section class="glass-panel" style="margin-bottom: 32px;">
-                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-brands fa-google-drive" style="color: var(--brand-secondary);"></i>
-                    3. Google Drive Service Account Configuration
-                </h2>
+            <section class="grade-card reveal delay-3" style="max-width: none; margin-bottom: 36px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="feature-icon" style="margin-bottom: 0; width: 40px; height: 40px; font-size: 1.1rem;">
+                            <i class="fa-brands fa-google-drive" style="color: var(--accent);"></i>
+                        </div>
+                        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.4rem;">3. Google Drive Service Account Configuration</h2>
+                    </div>
+                    <span class="badge info">Cloud Integration</span>
+                </div>
 
-                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.6;">
                     Follow these 4 simple steps to connect your Google Drive resume folder:
                 </p>
 
-                <div style="display: flex; flex-direction: column; gap: 16px;">
-                    <div style="display: flex; gap: 14px;">
-                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">1</span>
+                <div style="display: flex; flex-direction: column; gap: 18px;">
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding: 16px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem;">1</span>
                         <div>
-                            <div style="font-weight: 600;">Enable Google Drive & Docs APIs</div>
-                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
-                                In the <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--brand-secondary); text-decoration: underline;">Google Cloud Console</a>, enable both the <strong>Google Drive API</strong> and <strong>Google Docs API</strong>.
+                            <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">Enable Google Drive & Docs APIs</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;">
+                                In the <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--accent); text-decoration: underline;">Google Cloud Console</a>, navigate to APIs & Services and enable both the <strong>Google Drive API</strong> and <strong>Google Docs API</strong>.
                             </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 14px;">
-                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">2</span>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding: 16px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem;">2</span>
                         <div>
-                            <div style="font-weight: 600;">Generate Service Account Key</div>
-                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                            <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">Generate Service Account Key</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;">
                                 Create a Service Account, generate a JSON Key, and save it as <code>backend/service-account.json</code> (or point the <code>GOOGLE_APPLICATION_CREDENTIALS</code> environment variable to it).
                             </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 14px;">
-                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">3</span>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding: 16px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem;">3</span>
                         <div>
-                            <div style="font-weight: 600;">Share Your Drive Folder with the Service Account</div>
-                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                            <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">Share Your Drive Folder with the Service Account</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;">
                                 Open your Google Drive resume folder, click <strong>Share</strong>, and paste your Service Account's email address (e.g., <code>your-app@project-id.iam.gserviceaccount.com</code>) with <strong>Viewer</strong> or <strong>Editor</strong> permissions.
                             </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; gap: 14px;">
-                        <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.85rem;">4</span>
+                    <div style="display: flex; gap: 16px; align-items: flex-start; padding: 16px; background: var(--bg-subtle); border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem;">4</span>
                         <div>
-                            <div style="font-weight: 600;">Copy the Folder ID</div>
-                            <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                            <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">Copy the Folder ID</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.55;">
                                 The Folder ID is the string of characters at the end of your browser URL:
-                                <div style="background: var(--bg-input); padding: 8px 12px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; margin-top: 6px; color: var(--brand-secondary);">
-                                    https://drive.google.com/drive/folders/<strong>1a2B3c4D5e6F7g8H9i0jK</strong>
+                                <div style="background: var(--bg-paper); padding: 10px 14px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; margin-top: 8px; color: var(--accent); border: 1px solid var(--border-light);">
+                                    https://drive.google.com/drive/folders/<strong style="color: var(--text-dark);">1a2B3c4D5e6F7g8H9i0jK</strong>
                                 </div>
                             </div>
                         </div>
@@ -191,95 +207,130 @@
             </section>
 
             <!-- ── SECTION 4: API SPECIFICATION ── -->
-            <section class="glass-panel">
-                <h2 style="font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-code" style="color: var(--success);"></i>
-                    4. REST API Specification
-                </h2>
+            <section class="grade-card reveal delay-4" style="max-width: none; margin-bottom: 36px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="feature-icon" style="margin-bottom: 0; width: 40px; height: 40px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-code" style="color: var(--accent);"></i>
+                        </div>
+                        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.4rem;">4. REST API Specification</h2>
+                    </div>
+                    <span class="badge info">Developers</span>
+                </div>
 
                 <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api (or /process-batch)</span>
+                    <div style="background: var(--bg-subtle); padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-dark);">/api (or /process-batch)</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
                             Batch screens resumes from Google Drive. Body: <code>{ inputFolderId, outputFolderId, maxFiles, jobCriteria, customWeights, generateDocs }</code>
                         </div>
                     </div>
 
-                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/jobs/parse</span>
+                    <div style="background: var(--bg-subtle); padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-dark);">/api/jobs/parse</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
                             Extracts structured requirements from raw text or uploaded JD file (PDF/DOCX via <code>multipart/form-data</code>).
                         </div>
                     </div>
 
-                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/candidates/screen-file</span>
+                    <div style="background: var(--bg-subtle); padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-dark);">/api/candidates/screen-file</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
                             Directly evaluates a single uploaded resume file against job criteria.
                         </div>
                     </div>
 
-                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <span class="badge badge-success" style="font-size: 0.75rem;">POST</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/candidates/review-status</span>
+                    <div style="background: var(--bg-subtle); padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="badge badge-success" style="font-size: 0.75rem; font-weight: 700;">POST</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-dark);">/api/candidates/review-status</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
                             Updates human-in-the-loop candidate review status (<code>shortlisted</code>, <code>rejected</code>, <code>interview_scheduled</code>, <code>hold</code>).
                         </div>
                     </div>
 
-                    <div style="background: var(--bg-card); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                            <span class="badge badge-info" style="font-size: 0.75rem;">GET</span>
-                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">/api/status & /health</span>
+                    <div style="background: var(--bg-subtle); padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                            <span class="badge badge-info" style="font-size: 0.75rem; font-weight: 700;">GET</span>
+                            <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-dark);">/api/status &amp; /health</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
                             Returns real-time service health, Gemini API key status, and Google Cloud credentials status.
                         </div>
                     </div>
                 </div>
             </section>
 
+            <!-- ── READY TO SCREEN CTA ── -->
+            <div style="text-align: center; padding: 48px 24px; background: var(--bg-subtle); border-radius: var(--radius); border: 1px solid var(--border-light);" class="reveal delay-5">
+                <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.8rem; margin-bottom: 12px; color: var(--text-dark);">
+                    Ready to streamline candidate screening?
+                </h3>
+                <p style="color: var(--text-muted); max-width: 540px; margin: 0 auto 28px; font-size: 0.98rem;">
+                    Configure your job requirements, drop candidate resumes into Google Drive, and watch Gemini AI score and organize your candidate pipeline.
+                </p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;">
+                    <a href="/grade.html" class="btn-primary">Start Screening Batch →</a>
+                    <a href="/job.html" class="btn-secondary">Job Criteria Studio</a>
+                </div>
+            </div>
+
         </div>
     </main>
 
     <!-- ── FOOTER ── -->
-    <footer class="footer">
-        <div class="container footer-content">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-weight: 700;">Resume Radar</span>
-                <span>•</span>
-                <span>Platform Documentation</span>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">Resume Radar</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/job.html">Job Criteria</a>
+                <a href="/grade.html">Screen Resumes</a>
+                <a href="/analytics.html">Analytics</a>
+                <a href="/guide.html">How It Works</a>
             </div>
-            <a href="/grade.html" class="btn-primary btn-sm">Start Screening →</a>
+            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
         </div>
     </footer>
 
     <!-- Scripts -->
     <script src="config.js"></script>
     <script>
-        const themeToggle = document.getElementById('theme-toggle');
-        const currentTheme = localStorage.getItem('rr_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', currentTheme);
+        // Theme toggle
+        const toggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('rr_theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
 
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const active = document.documentElement.getAttribute('data-theme');
-                const nextTheme = active === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', nextTheme);
-                localStorage.setItem('rr_theme', nextTheme);
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                const current = html.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', next);
+                localStorage.setItem('rr_theme', next);
             });
         }
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-slow').forEach(el => observer.observe(el));
     </script>
 </body>
 

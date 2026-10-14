@@ -1,11 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-title Resume Radar - AI Candidate Screening & Analytics Platform
+title Resume Radar - AI Candidate Screening and Analytics Platform
 
 echo ============================================================
 echo                      RESUME RADAR
-echo   AI-Powered Candidate Screening & Recruitment Analytics
+echo   AI-Powered Candidate Screening and Recruitment Analytics
 echo ============================================================
 echo.
 
@@ -54,12 +54,12 @@ if not exist "%BACKEND_DIR%\.env" (
         echo [INFO] No .env found. Creating .env from .env.example...
         copy "%BACKEND_DIR%\.env.example" "%BACKEND_DIR%\.env" >nul
         echo [OK] Created .env template in backend.
-        echo [!] Remember to configure your GEMINI_API_KEY in %BACKEND_DIR%\.env
+        echo [!] Remember to configure your GEMINI_API_KEY in backend .env
     ) else (
         echo [WARNING] No .env file found in backend directory.
     )
 ) else (
-    echo [OK] Environment file (.env) found.
+    echo [OK] Environment file .env found.
 )
 
 :: Step 3: Check node_modules and install dependencies if needed
@@ -84,11 +84,17 @@ echo   Starting Resume Radar server on http://localhost:8080 ...
 echo ============================================================
 echo.
 
-:: Step 4: Launch Browser after brief delay
+:: Step 4: Launch Browser after 2 second delay
 start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:8080"
 
 :: Step 5: Start Express Server
 cd /d "%BACKEND_DIR%"
 node server.js
+
+if !ERRORLEVEL! NEQ 0 (
+    echo.
+    echo [ERROR] Server stopped unexpectedly with exit code !ERRORLEVEL!.
+    pause
+)
 
 pause

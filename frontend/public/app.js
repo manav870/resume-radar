@@ -3,19 +3,9 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ── 1. Theme Toggle ──
-    const themeToggle = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('rr_theme') || 'dark';
+    // ── 1. Theme Initialization (Handled globally per page) ──
+    const currentTheme = localStorage.getItem('rr_theme') || 'light';
     document.documentElement.setAttribute('data-theme', currentTheme);
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const active = document.documentElement.getAttribute('data-theme');
-            const nextTheme = active === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', nextTheme);
-            localStorage.setItem('rr_theme', nextTheme);
-        });
-    }
 
     // ── 2. Load Active Job Criteria ──
     let activeJobCriteria = null;
