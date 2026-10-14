@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Criteria Studio — Resume Radar</title>
+    <meta name="description"
+        content="Define and extract structured job requirements from text or PDF/DOCX using Gemini AI. Customize deterministic scoring weights for candidate screening.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- ── NAVIGATION BAR ── -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a class="logo" href="/">
+                <div class="logo-icon-wrapper">
+                    <i class="fa-solid fa-crosshairs"></i>
+                    <div class="logo-radar-sweep"></div>
+                </div>
+                <span>Resume Radar</span>
+                <span class="logo-badge">PRO</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a href="/job.html" class="nav-link active">
+                    <i class="fa-solid fa-briefcase"></i> Job Criteria
+                </a>
+                <a href="/grade.html" class="nav-link">
+                    <i class="fa-solid fa-layer-group"></i> Screen Batch
+                </a>
+                <a href="/analytics.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i> Analytics
+                </a>
+                <a href="/guide.html" class="nav-link">
+                    <i class="fa-solid fa-book-open"></i> How It Works
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                    <i class="fa-solid fa-moon icon-moon"></i>
+                    <i class="fa-solid fa-sun icon-sun"></i>
+                </button>
+                <a href="/grade.html" class="btn-primary btn-sm">
+                    <i class="fa-solid fa-bolt"></i> Screen Batch
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main style="padding: 40px 0 80px;">
+        <div class="container">
+
+            <!-- ── HEADER BANNER ── -->
+            <div style="margin-bottom: 32px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--brand-secondary); font-size: 0.88rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+                    <i class="fa-solid fa-sliders"></i> Criteria Studio
+                </div>
+                <h1 style="font-size: 2.3rem; margin-bottom: 10px;">Job Specification & Scoring Criteria</h1>
+                <p style="color: var(--text-secondary); max-width: 780px;">
+                    Define the requirements against which candidate resumes will be screened. Extract criteria from raw text or PDF/DOCX using Gemini AI, or customize weights for the deterministic scoring engine.
+                </p>
+            </div>
+
+            <!-- ── TWO-COLUMN WORKSPACE ── -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 32px; align-items: start;">
+
+                <!-- ════════ COLUMN 1: INPUT SPECIFICATION ════════ -->
+                <div class="glass-panel">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                        <h2 style="font-size: 1.25rem;">1. Input Job Description</h2>
+                        <span class="badge badge-info">Step 1 of 2</span>
+                    </div>
+
+                    <!-- Input Tabs -->
+                    <div class="tab-bar">
+                        <button class="tab-btn active" data-tab="tab-text" type="button">
+                            <i class="fa-solid fa-align-left"></i> Paste Text
+                        </button>
+                        <button class="tab-btn" data-tab="tab-file" type="button">
+                            <i class="fa-solid fa-file-arrow-up"></i> Upload File
+                        </button>
+                        <button class="tab-btn" data-tab="tab-templates" type="button">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Templates
+                        </button>
+                    </div>
+
+                    <!-- Tab 1: Paste Text -->
+                    <div id="tab-text" class="tab-content active">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <span>Job Description Text</span>
+                                <button type="button" id="loadSampleBtn" class="btn-outline btn-sm" style="font-size: 0.78rem;">
+                                    <i class="fa-solid fa-sparkles"></i> Load Sample JD
+                                </button>
+                            </div>
+                            <textarea id="jobTextArea" class="form-textarea" style="min-height: 260px;"
+                                placeholder="Paste job title, responsibilities, required skills, preferred skills, years of experience, and education requirements here..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Upload File -->
+                    <div id="tab-file" class="tab-content">
+                        <div class="form-group">
+                            <div class="form-label">Upload Spec Document (PDF / DOCX)</div>
+                            <div class="dropzone" id="fileDropzone">
+                                <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                                <div style="font-weight: 600;">Drag & drop job spec document here</div>
+                                <div style="font-size: 0.84rem; color: var(--text-muted);">Supports .pdf, .docx, and .txt files (max 15MB)</div>
+                                <input type="file" id="jobFileInput" accept=".pdf,.docx,.txt" style="display: none;">
+                                <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('jobFileInput').click()">
+                                    Browse Files
+                                </button>
+                                <div id="selectedFileName" style="font-size: 0.88rem; color: var(--brand-secondary); font-weight: 500; display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Quick Role Templates -->
+                    <div id="tab-templates" class="tab-content">
+                        <div class="form-group">
+                            <div class="form-label">Select a Pre-Configured Template</div>
+                            <div class="template-grid">
+                                <div class="template-card" data-template="fullstack">
+                                    <div class="template-title">Senior Full Stack Engineer</div>
+                                    <div class="template-meta">React, Node.js, TypeScript, PostgreSQL • 4+ Yrs</div>
+                                </div>
+                                <div class="template-card" data-template="ml">
+                                    <div class="template-title">Machine Learning Engineer</div>
+                                    <div class="template-meta">Python, PyTorch, TensorFlow, NLP, Docker • 3+ Yrs</div>
+                                </div>
+                                <div class="template-card" data-template="devops">
+                                    <div class="template-title">DevOps / Cloud Architect</div>
+                                    <div class="template-meta">AWS, Kubernetes, Terraform, CI/CD, Docker • 5+ Yrs</div>
+                                </div>
+                                <div class="template-card" data-template="frontend">
+                                    <div class="template-title">Frontend Engineer (React)</div>
+                                    <div class="template-meta">React, TypeScript, CSS3, Next.js, Redux • 2+ Yrs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trigger AI Extraction Button -->
+                    <button id="extractBtn" class="btn-primary" style="width: 100%; margin-top: 14px;" type="button">
+                        <span id="extractBtnText">
+                            <i class="fa-solid fa-brain"></i> Extract Criteria with Gemini AI
+                        </span>
+                        <span id="extractSpinner" class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+
+                <!-- ════════ COLUMN 2: STRUCTURED CRITERIA & WEIGHTS ════════ -->
+                <div class="glass-panel" style="border-color: var(--border-brand);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                        <div>
+                            <h2 style="font-size: 1.25rem;">2. Review & Fine-Tune Criteria</h2>
+                            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                                Changes made here directly govern candidate scoring.
+                            </div>
+                        </div>
+                        <span id="criteriaStatusBadge" class="badge badge-success">Saved Active</span>
+                    </div>
+
+                    <!-- Job Title & Department -->
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 16px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" for="jobTitleInput">Job Title</label>
+                            <input type="text" id="jobTitleInput" class="form-input" placeholder="e.g. Senior Software Engineer">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" for="jobDeptInput">Department</label>
+                            <input type="text" id="jobDeptInput" class="form-input" placeholder="e.g. Engineering">
+                        </div>
+                    </div>
+
+                    <!-- Required Skills (Weight 40%) -->
+                    <div class="form-group">
+                        <div class="form-label">
+                            <span>
+                                <i class="fa-solid fa-star" style="color: var(--brand-primary); font-size: 0.8rem;"></i>
+                                Required Skills (40% Weight)
+                            </span>
+                            <span id="reqSkillCount" class="badge badge-info" style="font-size: 0.72rem;">0 Skills</span>
+                        </div>
+                        <div class="chip-container" id="reqSkillsContainer">
+                            <input type="text" id="reqSkillInput" class="chip-input" placeholder="Type skill & press Enter...">
+                        </div>
+                        <div class="form-help">Mandatory qualifications. Every matched skill increases candidate score.</div>
+                    </div>
+
+                    <!-- Preferred Skills (Weight 15%) -->
+                    <div class="form-group">
+                        <div class="form-label">
+                            <span>
+                                <i class="fa-solid fa-plus-circle" style="color: var(--brand-secondary); font-size: 0.8rem;"></i>
+                                Preferred / Nice-to-Have Skills (15% Weight)
+                            </span>
+                            <span id="prefSkillCount" class="badge badge-info" style="font-size: 0.72rem;">0 Skills</span>
+                        </div>
+                        <div class="chip-container" id="prefSkillsContainer">
+                            <input type="text" id="prefSkillInput" class="chip-input" placeholder="Type preferred skill & press Enter...">
+                        </div>
+                    </div>
+
+                    <!-- Experience & Education Tier -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" for="minExpInput">Min Experience (Years)</label>
+                            <input type="number" id="minExpInput" class="form-input" min="0" max="30" value="3">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label" for="minEduSelect">Min Education Level</label>
+                            <select id="minEduSelect" class="form-select">
+                                <option value="None">None / Any</option>
+                                <option value="High School">High School</option>
+                                <option value="Associate">Associate Degree</option>
+                                <option value="Bachelor's" selected>Bachelor's Degree</option>
+                                <option value="Master's">Master's Degree</option>
+                                <option value="PhD">Doctorate / Ph.D.</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="form-group">
+                        <div class="form-label">
+                            <span>
+                                <i class="fa-solid fa-certificate" style="color: var(--warning); font-size: 0.8rem;"></i>
+                                Certifications / Credentials
+                            </span>
+                            <span id="certCount" class="badge badge-info" style="font-size: 0.72rem;">0 Certs</span>
+                        </div>
+                        <div class="chip-container" id="certsContainer">
+                            <input type="text" id="certInput" class="chip-input" placeholder="e.g. AWS Certified Developer, PMP...">
+                        </div>
+                    </div>
+
+                    <!-- ── WEIGHT CUSTOMIZATION ACCORDION ── -->
+                    <details style="margin-bottom: 24px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 18px;">
+                        <summary style="font-weight: 600; cursor: pointer; color: var(--brand-secondary); display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fa-solid fa-scale-balanced"></i> Customize Scoring Category Weights</span>
+                            <span id="weightTotalBadge" class="badge badge-success">Total: 100%</span>
+                        </summary>
+                        <div style="margin-top: 18px;">
+                            <div class="weight-row">
+                                <span class="weight-label">Required Skills</span>
+                                <span class="weight-val" id="valReq">40%</span>
+                            </div>
+                            <input type="range" class="range-slider" id="sliderReq" min="10" max="70" value="40">
+
+                            <div class="weight-row" style="margin-top: 12px;">
+                                <span class="weight-label">Preferred Skills</span>
+                                <span class="weight-val" id="valPref">15%</span>
+                            </div>
+                            <input type="range" class="range-slider" id="sliderPref" min="0" max="40" value="15">
+
+                            <div class="weight-row" style="margin-top: 12px;">
+                                <span class="weight-label">Experience Alignment</span>
+                                <span class="weight-val" id="valExp">25%</span>
+                            </div>
+                            <input type="range" class="range-slider" id="sliderExp" min="10" max="50" value="25">
+
+                            <div class="weight-row" style="margin-top: 12px;">
+                                <span class="weight-label">Education Alignment</span>
+                                <span class="weight-val" id="valEdu">10%</span>
+                            </div>
+                            <input type="range" class="range-slider" id="sliderEdu" min="0" max="30" value="10">
+
+                            <div class="weight-row" style="margin-top: 12px;">
+                                <span class="weight-label">Certifications & Projects</span>
+                                <span class="weight-val" id="valCert">10%</span>
+                            </div>
+                            <input type="range" class="range-slider" id="sliderCert" min="0" max="30" value="10">
+                        </div>
+                    </details>
+
+                    <!-- Save & Next Actions -->
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" id="saveAndProceedBtn" class="btn-primary" style="flex: 2;">
+                            <i class="fa-solid fa-arrow-right"></i> Save & Proceed to Screen Resumes
+                        </button>
+                        <button type="button" id="exportCriteriaBtn" class="btn-secondary" style="flex: 1;" title="Download Criteria JSON">
+                            <i class="fa-solid fa-download"></i> Export JSON
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 700;">Resume Radar</span>
+                <span>•</span>
+                <span>Job Criteria Studio</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.82rem;">
+                All criteria are automatically synced with the Deterministic Scoring Engine.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script>
+        // ── Theme Switcher ──
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('rr_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const active = document.documentElement.getAttribute('data-theme');
+                const nextTheme = active === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', nextTheme);
+                localStorage.setItem('rr_theme', nextTheme);
+            });
+        }
+
+        // ── Toast Helper ──
+        function showToast(message, icon = 'fa-check-circle', color = 'var(--brand-secondary)') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid ${icon}" style="color: ${color}; font-size: 1.1rem;"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ── Tab Navigation ──
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-tab');
+                document.getElementById(targetId)?.classList.add('active');
+            });
+        });
+
+        // ── Pre-configured Role Templates ──
+        const ROLE_TEMPLATES = {
+            fullstack: {
+                jobTitle: 'Senior Full Stack Engineer',
+                department: 'Core Product Engineering',
+                requiredSkills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'PostgreSQL', 'RESTful API'],
+                preferredSkills: ['Docker', 'AWS', 'GraphQL', 'TailwindCSS', 'Redis'],
+                minYearsExperience: 4,
+                minEducationLevel: "Bachelor's",
+                certifications: ['AWS Certified Developer']
+            },
+            ml: {
+                jobTitle: 'Machine Learning Engineer',
+                department: 'AI & Data Science',
+                requiredSkills: ['Python', 'PyTorch', 'TensorFlow', 'Scikit-Learn', 'Natural Language Processing', 'Data Modeling'],
+                preferredSkills: ['Docker', 'Kubernetes', 'Hugging Face', 'MLflow', 'FastAPI'],
+                minYearsExperience: 3,
+                minEducationLevel: "Master's",
+                certifications: ['Deep Learning Specialization']
+            },
+            devops: {
+                jobTitle: 'DevOps / Cloud Architect',
+                department: 'Infrastructure & Platform',
+                requiredSkills: ['AWS', 'Kubernetes', 'Docker', 'Terraform', 'CI/CD', 'Linux'],
+                preferredSkills: ['Ansible', 'Prometheus', 'Grafana', 'Python', 'Go'],
+                minYearsExperience: 5,
+                minEducationLevel: "Bachelor's",
+                certifications: ['AWS Solutions Architect', 'CKA']
+            },
+            frontend: {
+                jobTitle: 'Frontend Engineer (React)',
+                department: 'Web Experiences',
+                requiredSkills: ['JavaScript', 'TypeScript', 'React', 'HTML5', 'CSS3', 'Next.js'],
+                preferredSkills: ['Redux', 'Webpack', 'Figma', 'Jest', 'Responsive Design'],
+                minYearsExperience: 2,
+                minEducationLevel: "Bachelor's",
+                certifications: []
+            }
+        };
+
+        // ── Sample JD Text ──
+        const SAMPLE_JD_TEXT = `Job Title: Senior Full Stack Engineer
+Department: Product Engineering
+Location: Remote / Hybrid
+
+We are looking for an experienced Senior Full Stack Engineer to lead the architecture of our cloud-native web platform.
+
+Required Skills & Qualifications:
+- 4+ years of professional full-stack development experience
+- Mastery of JavaScript, TypeScript, React, and Node.js
+- Strong proficiency in relational databases (PostgreSQL or MySQL)
+- Experience designing and building RESTful APIs
+- Bachelor's degree in Computer Science, Software Engineering, or related technical field
+
+Preferred Qualifications:
+- Experience with Docker, Kubernetes, and containerized deployments
+- Cloud platform experience with Amazon Web Services (AWS) or GCP
+- Familiarity with GraphQL, Redis caching, and CI/CD automation pipelines
+- AWS Certified Developer certification is a plus`;
+
+        document.getElementById('loadSampleBtn')?.addEventListener('click', () => {
+            document.getElementById('jobTextArea').value = SAMPLE_JD_TEXT;
+            showToast('Sample Job Description loaded!', 'fa-file-lines');
+        });
+
+        // ── Template Card Selection ──
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                const key = card.getAttribute('data-template');
+                const template = ROLE_TEMPLATES[key];
+                if (template) {
+                    populateCriteria(template);
+                    showToast(`Applied "${template.jobTitle}" template!`);
+                }
+            });
+        });
+
+        // ── Dropzone & File Selection ──
+        const dropzone = document.getElementById('fileDropzone');
+        const fileInput = document.getElementById('jobFileInput');
+        const selectedFileName = document.getElementById('selectedFileName');
+        let selectedFile = null;
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-active');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-active');
+            });
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            selectedFile = file;
+            selectedFileName.textContent = `Selected: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+            selectedFileName.style.display = 'block';
+            showToast(`Loaded ${file.name}`, 'fa-file');
+        }
+
+        // ── Chip / Tag Management Helpers ──
+        function createChip(text, container, inputElement, chipClass = '') {
+            const trimmed = text.trim();
+            if (!trimmed) return;
+
+            // Prevent duplicate chip
+            const existing = Array.from(container.querySelectorAll('.chip-text')).map(span => span.textContent.toLowerCase());
+            if (existing.includes(trimmed.toLowerCase())) return;
+
+            const chip = document.createElement('div');
+            chip.className = `chip ${chipClass}`;
+            chip.innerHTML = `
+                <span class="chip-text">${trimmed}</span>
+                <button type="button" class="chip-remove" title="Remove">&times;</button>
+            `;
+
+            chip.querySelector('.chip-remove').addEventListener('click', () => {
+                chip.remove();
+                updateSkillCounts();
+            });
+
+            container.insertBefore(chip, inputElement);
+            inputElement.value = '';
+            updateSkillCounts();
+        }
+
+        function getChips(container) {
+            return Array.from(container.querySelectorAll('.chip-text')).map(s => s.textContent.trim());
+        }
+
+        function setupChipInput(inputElement, container, chipClass = '') {
+            inputElement.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    createChip(inputElement.value, container, inputElement, chipClass);
+                }
+            });
+        }
+
+        const reqContainer = document.getElementById('reqSkillsContainer');
+        const reqInput = document.getElementById('reqSkillInput');
+        setupChipInput(reqInput, reqContainer, '');
+
+        const prefContainer = document.getElementById('prefSkillsContainer');
+        const prefInput = document.getElementById('prefSkillInput');
+        setupChipInput(prefInput, prefContainer, 'chip-pref');
+
+        const certsContainer = document.getElementById('certsContainer');
+        const certInput = document.getElementById('certInput');
+        setupChipInput(certInput, certsContainer, 'chip-cert');
+
+        function updateSkillCounts() {
+            const reqCount = getChips(reqContainer).length;
+            const prefCount = getChips(prefContainer).length;
+            const certCount = getChips(certsContainer).length;
+
+            document.getElementById('reqSkillCount').textContent = `${reqCount} Skills`;
+            document.getElementById('prefSkillCount').textContent = `${prefCount} Skills`;
+            document.getElementById('certCount').textContent = `${certCount} Certs`;
+        }
+
+        function populateCriteria(criteria) {
+            document.getElementById('jobTitleInput').value = criteria.jobTitle || '';
+            document.getElementById('jobDeptInput').value = criteria.department || '';
+            document.getElementById('minExpInput').value = criteria.minYearsExperience ?? 3;
+            document.getElementById('minEduSelect').value = criteria.minEducationLevel || "Bachelor's";
+
+            // Clear chips
+            reqContainer.querySelectorAll('.chip').forEach(c => c.remove());
+            prefContainer.querySelectorAll('.chip').forEach(c => c.remove());
+            certsContainer.querySelectorAll('.chip').forEach(c => c.remove());
+
+            // Add chips
+            if (Array.isArray(criteria.requiredSkills)) {
+                criteria.requiredSkills.forEach(s => createChip(s, reqContainer, reqInput, ''));
+            }
+            if (Array.isArray(criteria.preferredSkills)) {
+                criteria.preferredSkills.forEach(s => createChip(s, prefContainer, prefInput, 'chip-pref'));
+            }
+            if (Array.isArray(criteria.certifications)) {
+                criteria.certifications.forEach(c => createChip(c, certsContainer, certInput, 'chip-cert'));
+            }
+
+            updateSkillCounts();
+            saveCriteriaToStorage();
+        }
+
+        // ── Weight Sliders Sync ──
+        const sliders = {
+            req: document.getElementById('sliderReq'),
+            pref: document.getElementById('sliderPref'),
+            exp: document.getElementById('sliderExp'),
+            edu: document.getElementById('sliderEdu'),
+            cert: document.getElementById('sliderCert')
+        };
+
+        const labels = {
+            req: document.getElementById('valReq'),
+            pref: document.getElementById('valPref'),
+            exp: document.getElementById('valExp'),
+            edu: document.getElementById('valEdu'),
+            cert: document.getElementById('valCert')
+        };
+
+        function updateWeights() {
+            let total = 0;
+            for (const key of Object.keys(sliders)) {
+                const val = parseInt(sliders[key].value, 10);
+                labels[key].textContent = `${val}%`;
+                total += val;
+            }
+
+            const totalBadge = document.getElementById('weightTotalBadge');
+            totalBadge.textContent = `Total: ${total}%`;
+            if (total === 100) {
+                totalBadge.className = 'badge badge-success';
+            } else {
+                totalBadge.className = 'badge badge-warning';
+                totalBadge.textContent = `Total: ${total}% (Normalized to 100%)`;
+            }
+        }
+
+        Object.values(sliders).forEach(s => s.addEventListener('input', updateWeights));
+
+        // ── AI Extraction Request ──
+        const extractBtn = document.getElementById('extractBtn');
+        const extractBtnText = document.getElementById('extractBtnText');
+        const extractSpinner = document.getElementById('extractSpinner');
+
+        extractBtn.addEventListener('click', async () => {
+            const activeTab = document.querySelector('.tab-btn.active')?.getAttribute('data-tab');
+
+            let formData = null;
+            let jsonBody = null;
+
+            if (activeTab === 'tab-file') {
+                if (!selectedFile) {
+                    alert('Please select or drop a job description file (.pdf, .docx, .txt).');
+                    return;
+                }
+                formData = new FormData();
+                formData.append('jobFile', selectedFile);
+            } else {
+                const text = document.getElementById('jobTextArea').value.trim();
+                if (!text) {
+                    alert('Please paste a job description or select a role template.');
+                    return;
+                }
+                jsonBody = { jobText: text };
+            }
+
+            // UI Loading state
+            extractBtn.disabled = true;
+            extractBtnText.style.display = 'none';
+            extractSpinner.style.display = 'inline-block';
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/jobs/parse`, {
+                    method: 'POST',
+                    headers: jsonBody ? { 'Content-Type': 'application/json' } : {},
+                    body: formData || JSON.stringify(jsonBody)
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to extract criteria');
+                }
+
+                populateCriteria(data.criteria);
+                showToast('Criteria successfully extracted with Gemini AI!', 'fa-wand-magic-sparkles');
+
+            } catch (err) {
+                console.error(err);
+                alert(`Error extracting job criteria: ${err.message}`);
+            } finally {
+                extractBtn.disabled = false;
+                extractBtnText.style.display = 'inline-block';
+                extractSpinner.style.display = 'none';
+            }
+        });
+
+        // ── Storage & Navigation ──
+        function getCurrentCriteria() {
+            return {
+                jobTitle: document.getElementById('jobTitleInput').value.trim() || 'Software Engineer',
+                department: document.getElementById('jobDeptInput').value.trim() || 'Engineering',
+                requiredSkills: getChips(reqContainer),
+                preferredSkills: getChips(prefContainer),
+                minYearsExperience: Number(document.getElementById('minExpInput').value) || 0,
+                minEducationLevel: document.getElementById('minEduSelect').value,
+                certifications: getChips(certsContainer)
+            };
+        }
+
+        function getCurrentWeights() {
+            return {
+                requiredSkills: parseInt(sliders.req.value, 10) / 100,
+                preferredSkills: parseInt(sliders.pref.value, 10) / 100,
+                experience: parseInt(sliders.exp.value, 10) / 100,
+                education: parseInt(sliders.edu.value, 10) / 100,
+                certifications: parseInt(sliders.cert.value, 10) / 100
+            };
+        }
+
+        function saveCriteriaToStorage() {
+            const criteria = getCurrentCriteria();
+            const weights = getCurrentWeights();
+            localStorage.setItem('rr_job_criteria', JSON.stringify(criteria));
+            localStorage.setItem('rr_custom_weights', JSON.stringify(weights));
+        }
+
+        document.getElementById('saveAndProceedBtn').addEventListener('click', () => {
+            saveCriteriaToStorage();
+            showToast('Criteria saved! Redirecting to Batch Screening...', 'fa-check');
+            setTimeout(() => {
+                window.location.href = '/grade.html';
+            }, 600);
+        });
+
+        document.getElementById('exportCriteriaBtn').addEventListener('click', () => {
+            const payload = {
+                criteria: getCurrentCriteria(),
+                weights: getCurrentWeights(),
+                exportedAt: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `job-criteria-${(payload.criteria.jobTitle || 'role').toLowerCase().replace(/\s+/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Exported job criteria JSON!', 'fa-download');
+        });
+
+        // ── Initial Load from LocalStorage if available ──
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('rr_job_criteria');
+            if (saved) {
+                try {
+                    populateCriteria(JSON.parse(saved));
+                } catch (e) {
+                    populateCriteria(ROLE_TEMPLATES.fullstack);
+                }
+            } else {
+                populateCriteria(ROLE_TEMPLATES.fullstack);
+            }
+        });
+    </script>
+</body>
+
+</html>
