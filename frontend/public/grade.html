@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Assignments — GradeFlow</title>
+    <meta name="description"
+        content="Upload a Google Drive folder of assignments and generate AI-powered feedback reports into a Google Doc.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a class="logo" href="/">
+            <div class="logo-icon">G</div>
+            GradeFlow
+        </a>
+        <div class="nav-links">
+            <a href="/" class="hide-mobile">Home</a>
+            <a href="/grade.html" class="hide-mobile active-link">Grade</a>
+            <a href="/guide.html" class="hide-mobile">How It Works</a>
+            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                <i class="fa-solid fa-moon icon-moon"></i>
+                <i class="fa-solid fa-sun icon-sun"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="grade-section">
+            <div class="container">
+                <div class="grade-header reveal">
+                    <p class="eyebrow">Batch Feedback</p>
+                    <h1>Grade Assignments</h1>
+                    <p>Connect your Google Drive folder, point to a feedback document, and let AI do the heavy lifting.
+                    </p>
+                </div>
+
+                <div class="grade-card reveal delay-1">
+                    <form id="processForm">
+                        <div class="form-group">
+                            <label for="inputFolderId"><i class="fa-solid fa-folder-open"
+                                    style="color: var(--accent); margin-right: 6px;"></i>Assignment Folder ID</label>
+                            <input type="text" id="inputFolderId" placeholder="e.g. 1a2B3c4D5e6F7g8H..." required>
+                            <span class="hint">The Google Drive folder containing student assignment files (e.g.
+                                27_Mohan.txt).</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="outputDocId"><i class="fa-solid fa-file-lines"
+                                    style="color: var(--accent); margin-right: 6px;"></i>Feedback Doc ID</label>
+                            <input type="text" id="outputDocId" placeholder="e.g. 1A2b3C4d5E6f7G8h9I0jK..." required>
+                            <span class="hint">A blank Google Doc shared with the service account. Feedback will be
+                                appended here.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxFiles"><i class="fa-solid fa-layer-group"
+                                    style="color: var(--accent); margin-right: 6px;"></i>Files to Process</label>
+                            <input type="number" id="maxFiles" value="3" min="1" max="5" required>
+                            <span class="hint">Maximum 5 files per batch.</span>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn-accent" style="width: 100%; margin-top: 8px;">
+                            <span class="btn-text">Generate Batch Feedback</span>
+                            <div class="spinner hidden" id="loadingSpinner"></div>
+                        </button>
+                    </form>
+                </div>
+
+                <div id="resultsSection" class="results-section hidden">
+                    <h2 class="reveal">Processing Results</h2>
+
+                    <div class="summary-cards reveal delay-1">
+                        <div class="summary-card">
+                            <div class="summary-value" id="summaryTotal">0</div>
+                            <div class="summary-label">Total Processed</div>
+                        </div>
+                        <div class="summary-card success">
+                            <div class="summary-value" id="summarySuccess">0</div>
+                            <div class="summary-label">Successful</div>
+                        </div>
+                        <div class="summary-card failed">
+                            <div class="summary-value" id="summaryFailed">0</div>
+                            <div class="summary-label">Failed</div>
+                        </div>
+                        <div class="summary-card skipped">
+                            <div class="summary-value" id="summarySkipped">0</div>
+                            <div class="summary-label">Skipped</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container reveal delay-2">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Status</th>
+                                    <th>Score</th>
+                                    <th>Message</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">GradeFlow</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/grade.html">Grade</a>
+                <a href="/guide.html">How It Works</a>
+            </div>
+            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+    <script>
+        // Theme toggle
+        const toggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('GradeFlow-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('GradeFlow-theme', next);
+        });
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-slow').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

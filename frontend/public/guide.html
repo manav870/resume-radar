@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works — GradeFlow</title>
+    <meta name="description"
+        content="Learn how GradeFlow automates assignment grading using Gemini AI, Google Drive, and Google Docs.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-shell {
+            flex: 1;
+            padding: 64px 0 88px;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(224, 122, 95, 0.06), transparent 24%);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a class="logo" href="/">
+            <div class="logo-icon">G</div>
+            GradeFlow
+        </a>
+        <div class="nav-links">
+            <a href="/" class="hide-mobile">Home</a>
+            <a href="/grade.html" class="hide-mobile">Grade</a>
+            <a href="/guide.html" class="hide-mobile active-link">How It Works</a>
+            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                <i class="fa-solid fa-moon icon-moon"></i>
+                <i class="fa-solid fa-sun icon-sun"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <!-- Hero -->
+        <section class="hero" style="padding: 0 24px 28px; max-width: 840px;">
+            <p class="eyebrow reveal">Project Guide</p>
+            <h1 class="reveal delay-1" style="font-size: clamp(2.7rem, 5vw, 4rem);">
+                Assignment grading, made <span class="accent-word">simple.</span>
+            </h1>
+            <p class="reveal delay-2">
+                GradeFlow helps teachers move from manual grading to an automated workflow: upload files to Drive, let
+                AI evaluate them, and get structured feedback in a Google Doc.
+            </p>
+            <div class="cta-row reveal delay-3">
+                <a href="/grade.html" class="btn-primary">Try It Now</a>
+                <a href="#process" class="btn-secondary">See the Flow</a>
+            </div>
+        </section>
+
+        <!-- Why Use It -->
+        <section class="section" id="why">
+            <div class="container">
+                <h2 class="section-title reveal">Why use GradeFlow?</h2>
+                <p class="section-subtitle reveal delay-1">Grading is usually slow, repetitive, and inconsistent.
+                    GradeFlow is built to fix all three.</p>
+                <div class="grid-3">
+                    <article class="card reveal delay-1">
+                        <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+                        <h3>Saves Time</h3>
+                        <p>Instead of reading and scoring each assignment manually, AI generates a detailed diagnostic
+                            report in seconds.</p>
+                    </article>
+                    <article class="card reveal delay-2">
+                        <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <h3>Reduces Bias</h3>
+                        <p>Every student gets evaluated against the same 4-criterion rubric — consistent, fair, and
+                            transparent.</p>
+                    </article>
+                    <article class="card reveal delay-3">
+                        <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
+                        <h3>Actionable Feedback</h3>
+                        <p>Goes beyond scores: identifies specific errors, explains why they're wrong, and gives each
+                            student a targeted practice task.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Before / After -->
+        <section class="section" style="margin-top: 48px;">
+            <div class="container">
+                <h2 class="section-title reveal">What it replaces</h2>
+                <p class="section-subtitle reveal delay-1">See what changes when you let AI handle the rubric
+                    evaluation.</p>
+                <div class="compare-grid">
+                    <div class="compare-card reveal delay-1">
+                        <h3>Before GradeFlow</h3>
+                        <ul class="compare-list">
+                            <li><i class="fa-solid fa-xmark"></i><span>Reading every assignment manually, line by
+                                    line</span></li>
+                            <li><i class="fa-solid fa-xmark"></i><span>Writing repetitive feedback comments by
+                                    hand</span></li>
+                            <li><i class="fa-solid fa-xmark"></i><span>Inconsistent rubric application across
+                                    students</span></li>
+                            <li><i class="fa-solid fa-xmark"></i><span>Hours spent on a single batch of
+                                    assignments</span></li>
+                        </ul>
+                    </div>
+                    <div class="compare-card reveal delay-2">
+                        <h3>With GradeFlow</h3>
+                        <ul class="compare-list">
+                            <li><i class="fa-solid fa-check"></i><span>Upload a folder and let AI analyze each
+                                    submission</span></li>
+                            <li><i class="fa-solid fa-check"></i><span>Structured reports with error analysis &
+                                    corrections</span></li>
+                            <li><i class="fa-solid fa-check"></i><span>Same 4-criterion rubric applied to every
+                                    student</span></li>
+                            <li><i class="fa-solid fa-check"></i><span>Entire batch graded in minutes, not hours</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step by Step -->
+        <section class="section" id="process" style="margin-top: 48px;">
+            <div class="container">
+                <h2 class="section-title reveal">How it works</h2>
+                <p class="section-subtitle reveal delay-1">A simple flow that does the heavy lifting behind the scenes.
+                </p>
+                <div class="step-list">
+                    <article class="card guide-step-card reveal delay-1">
+                        <div class="guide-step-number">1</div>
+                        <div class="guide-step-copy">
+                            <h3>Prepare Your Files</h3>
+                            <p>Create a Google Drive folder and add student assignments as text files. Name them like
+                                <code>27_Mohan.txt</code> so the system auto-detects the roll number and student name.
+                            </p>
+                        </div>
+                    </article>
+                    <article class="card guide-step-card reveal delay-2">
+                        <div class="guide-step-number">2</div>
+                        <div class="guide-step-copy">
+                            <h3>Share with Service Account</h3>
+                            <p>Share both the input folder and a blank output Google Doc with the service account email
+                                (<code>hackathon@hackathon-509406.iam.gserviceaccount.com</code>) as Editor.</p>
+                        </div>
+                    </article>
+                    <article class="card guide-step-card reveal delay-3">
+                        <div class="guide-step-number">3</div>
+                        <div class="guide-step-copy">
+                            <h3>Enter IDs & Process</h3>
+                            <p>Go to the <a href="/grade.html" style="color: var(--accent); font-weight: 600;">Grade
+                                    page</a>, paste the Folder ID and Doc ID, set the batch size, and click "Generate
+                                Batch Feedback".</p>
+                        </div>
+                    </article>
+                    <article class="card guide-step-card reveal delay-4">
+                        <div class="guide-step-number">4</div>
+                        <div class="guide-step-copy">
+                            <h3>Review in Google Docs</h3>
+                            <p>Open your feedback Google Doc. Each student's evaluation includes criterion scores, error
+                                analysis with corrections, hidden assumptions, and an actionable next step.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Format -->
+        <section class="section" style="margin-top: 48px;">
+            <div class="container">
+                <h2 class="section-title reveal">What the feedback looks like</h2>
+                <p class="section-subtitle reveal delay-1">Each student gets a structured diagnostic report with these
+                    sections:</p>
+                <div class="grid-2" style="margin-top: 24px;">
+                    <article class="card reveal delay-1">
+                        <div class="icon-box"><i class="fa-solid fa-table-cells"></i></div>
+                        <h3>Criterion Breakdown</h3>
+                        <p>Four dimensions scored out of 5: Clarity & Structure, Factual Accuracy, Completeness, and
+                            Conceptual Depth — each with a detailed diagnostic.</p>
+                    </article>
+                    <article class="card reveal delay-2">
+                        <div class="icon-box"><i class="fa-solid fa-bug"></i></div>
+                        <h3>Error Analysis</h3>
+                        <p>Specific mistakes identified with what was written, why it's incorrect, and the correct
+                            approach — so students learn from their errors.</p>
+                    </article>
+                    <article class="card reveal delay-3">
+                        <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
+                        <h3>Hidden Assumptions</h3>
+                        <p>Unstated premises the student relied on, plus alternative approaches they may have
+                            overlooked.</p>
+                    </article>
+                    <article class="card reveal delay-4">
+                        <div class="icon-box"><i class="fa-solid fa-route"></i></div>
+                        <h3>Actionable Next Step</h3>
+                        <p>A core principle to review and a single targeted practice task designed to close the specific
+                            knowledge gap.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonial / Summary -->
+        <section class="section" style="margin-top: 48px;">
+            <div class="container">
+                <div class="quote-card reveal">
+                    <div class="quote-title">The GradeFlow Promise</div>
+                    <p>Turn hours of manual grading into minutes of automated, consistent, and deeply educational
+                        feedback that helps every student improve.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="section final-cta" style="margin-top: 40px;">
+            <div class="container">
+                <div class="card reveal">
+                    <h2>Ready to grade smarter?</h2>
+                    <p>Upload assignments, let AI evaluate them, and review structured reports — all in one workflow.
+                    </p>
+                    <div class="cta-row">
+                        <a href="/grade.html" class="btn-primary">Start Grading →</a>
+                        <a href="/" class="btn-secondary">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">GradeFlow</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/grade.html">Grade</a>
+                <a href="/guide.html">How It Works</a>
+            </div>
+            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        const toggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('GradeFlow-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('GradeFlow-theme', next);
+        });
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradeFlow — AI-Powered Assignment Feedback</title>
+    <meta name="description"
+        content="GradeFlow uses Gemini AI to automatically grade student assignments and generate detailed, rubric-based feedback reports directly into Google Docs.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a class="logo" href="/">
+            <div class="logo-icon">G</div>
+            GradeFlow
+        </a>
+        <div class="nav-links">
+            <a href="/" class="hide-mobile active-link">Home</a>
+            <a href="/grade.html" class="hide-mobile">Grade</a>
+            <a href="/guide.html" class="hide-mobile">How It Works</a>
+            <button class="btn-icon" id="theme-toggle" type="button" title="Toggle theme">
+                <i class="fa-solid fa-moon icon-moon"></i>
+                <i class="fa-solid fa-sun icon-sun"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <h1>
+                <span class="reveal-slow inline-reveal word-delay-1">Grade </span>
+                <span class="reveal-slow inline-reveal word-delay-2">smarter,</span><br>
+                <span class="reveal-slow inline-reveal word-delay-3 accent-word">not harder.</span>
+            </h1>
+            <p class="reveal hero-delay-1">
+                Upload student assignments to Google Drive, and let Gemini AI generate detailed rubric-based feedback —
+                automatically written into a Google Doc.
+            </p>
+            <div class="hero-buttons reveal hero-delay-2">
+                <a href="/grade.html" class="btn-primary">Start Grading →</a>
+                <a href="/guide.html" class="btn-secondary">How It Works</a>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="reveal seq-1">Why GradeFlow?</h2>
+                    <p class="reveal seq-2">Everything a teacher needs to give better feedback, faster.</p>
+                </div>
+                <div class="features-grid">
+                    <article class="feature-card reveal seq-3">
+                        <div class="feature-icon">🧠</div>
+                        <h3>AI Grading</h3>
+                        <p>Powered by Gemini AI to evaluate clarity, accuracy, completeness, and conceptual depth.</p>
+                    </article>
+                    <article class="feature-card reveal seq-4">
+                        <div class="feature-icon">📦</div>
+                        <h3>Batch Processing</h3>
+                        <p>Grade multiple assignments in one click. Process an entire folder of student submissions at
+                            once.</p>
+                    </article>
+                    <article class="feature-card reveal seq-5">
+                        <div class="feature-icon">📝</div>
+                        <h3>Google Docs Output</h3>
+                        <p>Feedback is written directly into a shared Google Doc — ready to review, share, or print.</p>
+                    </article>
+                    <article class="feature-card reveal seq-6">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Error Analysis</h3>
+                        <p>Identifies specific mistakes, explains why they're wrong, and suggests corrections for each
+                            student.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="how" class="how-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="reveal">How It Works</h2>
+                    <p class="reveal reveal-delay-1">Three steps from assignments to actionable feedback.</p>
+                </div>
+                <div class="steps-grid">
+                    <article class="step-card reveal reveal-delay-1">
+                        <div class="step-number">01</div>
+                        <h3>Upload</h3>
+                        <p>Place student assignments (TXT, DOCX) into a Google Drive folder. Name files like
+                            <code>27_Mohan.txt</code> for auto-detection.</p>
+                    </article>
+                    <article class="step-card reveal reveal-delay-2">
+                        <div class="step-number">02</div>
+                        <h3>Analyze</h3>
+                        <p>Gemini AI evaluates each submission against a 4-criterion rubric: Clarity, Accuracy,
+                            Completeness, and Depth.</p>
+                    </article>
+                    <article class="step-card reveal reveal-delay-3">
+                        <div class="step-number">03</div>
+                        <h3>Review</h3>
+                        <p>Formatted feedback reports are appended to your Google Doc with scores, error analysis, and
+                            next steps.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech-strip">
+            <div class="container">
+                <p class="reveal">Powered By</p>
+                <div class="tech-logos reveal reveal-delay-1">
+                    <span>Gemini AI</span>
+                    <span>Google Drive</span>
+                    <span>Google Docs</span>
+                    <span>Node.js</span>
+                    <span>Express</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">GradeFlow</div>
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/grade.html">Grade</a>
+                <a href="/guide.html">How It Works</a>
+            </div>
+            <div class="footer-copy">© 2026 Manav Patel. Built for Hackathon.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        const toggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('GradeFlow-theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('GradeFlow-theme', next);
+        });
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-slow').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>
