@@ -9,6 +9,9 @@
         content="Define and extract structured job requirements from text or PDF/DOCX using Gemini AI. Customize deterministic scoring weights for candidate screening.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('rr_theme') || 'light');
+    </script>
 </head>
 
 <body>
@@ -36,7 +39,7 @@
         <div class="container">
 
             <!-- Header Banner -->
-            <div style="margin-bottom: 32px;" class="reveal">
+            <div style="margin-bottom: 32px;">
                 <p class="eyebrow"><i class="fa-solid fa-sliders"></i> Criteria Studio</p>
                 <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(2rem, 4vw, 2.5rem); margin-bottom: 10px;">Job Specification & Scoring Criteria</h1>
                 <p style="color: var(--text-muted); max-width: 780px;">
@@ -48,7 +51,7 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 32px; align-items: start;">
 
                 <!-- ════════ COLUMN 1: INPUT SPECIFICATION ════════ -->
-                <div class="grade-card reveal delay-1" style="max-width: none;">
+                <div class="grade-card" style="max-width: none;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
                         <h2 style="font-size: 1.25rem;">1. Input Job Description</h2>
                         <span class="badge info">Step 1 of 2</span>
@@ -133,7 +136,7 @@
                 </div>
 
                 <!-- ════════ COLUMN 2: STRUCTURED CRITERIA & WEIGHTS ════════ -->
-                <div class="grade-card reveal delay-2" style="max-width: none; border-left: 3px solid var(--accent);">
+                <div class="grade-card" style="max-width: none; border-left: 3px solid var(--accent);">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
                         <div>
                             <h2 style="font-size: 1.25rem;">2. Review & Fine-Tune Criteria</h2>
@@ -688,8 +691,8 @@ Preferred Qualifications:
             showToast('Exported job criteria JSON!', 'fa-download');
         });
 
-        // ── Initial Load from LocalStorage if available ──
-        window.addEventListener('DOMContentLoaded', () => {
+        // ── Initial Load from LocalStorage or Default Template ──
+        function initCriteria() {
             const saved = localStorage.getItem('rr_job_criteria');
             if (saved) {
                 try {
@@ -700,7 +703,30 @@ Preferred Qualifications:
             } else {
                 populateCriteria(ROLE_TEMPLATES.fullstack);
             }
-        });
+            updateWeights();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCriteria);
+        } else {
+            initCriteria();
+        }
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-slow').forEach(el => observer.observe(el));
+
+        // Immediate reveal failsafe
+        setTimeout(() => {
+            document.querySelectorAll('.reveal, .reveal-slow').forEach(el => el.classList.add('visible'));
+        }, 150);
     </script>
 </body>
 

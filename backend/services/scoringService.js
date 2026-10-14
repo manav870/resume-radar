@@ -240,8 +240,16 @@ function extractAllCandidateSkillEvidence(candidateProfile) {
                 exp.highlights.forEach(h => {
                     // Extract common tech words if found
                     for (const aliasKey of Object.keys(SKILL_ALIASES)) {
-                        const regex = new RegExp(`\\b${aliasKey}\\b`, 'i');
-                        if (regex.test(h)) skillPool.add(aliasKey);
+                        try {
+                            const escaped = aliasKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            const regex = new RegExp(`(^|[^a-zA-Z0-9_+#])${escaped}(?![a-zA-Z0-9_+#])`, 'i');
+                            if (regex.test(h)) skillPool.add(aliasKey);
+                        } catch (e) {
+                            // Safe fallback in case of abnormal characters
+                            if (h.toLowerCase().includes(aliasKey.toLowerCase())) {
+                                skillPool.add(aliasKey);
+                            }
+                        }
                     }
                 });
             }
