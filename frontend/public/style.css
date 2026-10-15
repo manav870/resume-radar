@@ -65,17 +65,23 @@
 
 html {
     scroll-behavior: smooth;
+    background-color: var(--bg-paper);
+    color: var(--text-dark);
 }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-paper);
+    background-color: var(--bg-paper);
     color: var(--text-dark);
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    transition: background var(--transition), color var(--transition);
+}
+
+body.theme-transitioning,
+body.theme-transitioning * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease !important;
 }
 
 a {
@@ -1302,11 +1308,7 @@ main {
 .chart-wrapper {
     position: relative;
     width: 100%;
-    min-height: 280px;
-    max-height: 340px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    height: 300px;
 }
 
 .comparison-container {
@@ -1633,4 +1635,131 @@ footer {
     .cta-row .btn-secondary {
         width: 100%;
     }
+}
+
+/* ── Input History Dropdown & Recent Chips ── */
+.input-with-history {
+    position: relative;
+    width: 100%;
+}
+
+.history-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+}
+
+.history-dropdown.active {
+    display: block;
+    animation: fadeInDropdown 0.15s ease;
+}
+
+@keyframes fadeInDropdown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-subtle);
+}
+
+.history-header-clear {
+    color: var(--danger);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 4px;
+}
+
+.history-header-clear:hover {
+    text-decoration: underline;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-family: monospace;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.15s ease;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item:hover {
+    background: var(--accent-subtle);
+    color: var(--accent);
+}
+
+.history-item-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 85%;
+}
+
+.history-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    align-items: center;
+}
+
+.history-chip-label {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.history-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.74rem;
+    font-family: monospace;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    color: var(--text-dark);
+    padding: 2px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.history-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-subtle);
+    transform: translateY(-1px);
 }

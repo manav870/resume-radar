@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('rr_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Screen Resumes — Resume Radar</title>
     <meta name="description"
         content="Batch ingest candidate resumes from Google Drive, calculate transparent deterministic match scores, and review explainable AI talent evaluations.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('rr_theme') || 'light');
-    </script>
 </head>
 
 <body>
@@ -77,15 +80,24 @@
                                 <label for="inputFolderId">
                                     <i class="fa-solid fa-folder-open" style="color: var(--accent); margin-right: 6px;"></i>Resume Folder ID
                                 </label>
-                                <input type="text" id="inputFolderId" placeholder="e.g. 1a2B3c4D5e6F7g8H9i0jK..." required>
-                                <span class="hint">Google Drive folder with candidate resumes (.pdf, .docx, .txt).</span>
+                                <div class="input-with-history">
+                                    <input type="text" id="inputFolderId" placeholder="e.g. 1a2B3c4D5e6F7g8H9i0jK..." autocomplete="off" required>
+                                    <div id="inputFolderHistoryDropdown" class="history-dropdown"></div>
+                                </div>
+                                <div id="inputFolderChips" class="history-chips"></div>
+                                <span class="hint">Google Drive folder with candidate resumes (.pdf, .docx, .txt). Click field to pick previous IDs.</span>
                             </div>
 
                             <div class="form-group">
                                 <label for="outputDocId">
-                                    <i class="fa-solid fa-file-lines" style="color: var(--accent); margin-right: 6px;"></i>Export Doc ID (Optional)
+                                    <i class="fa-solid fa-file-lines" style="color: var(--accent); margin-right: 6px;"></i>Target Google Doc (ID or Link)
                                 </label>
-                                <input type="text" id="outputDocId" placeholder="Leave blank for in-memory, or provide Google Doc ID">
+                                <div class="input-with-history">
+                                    <input type="text" id="outputDocId" placeholder="e.g. 12sI8scxKOLT... or https://docs.google.com/document/d/..." autocomplete="off">
+                                    <div id="outputDocHistoryDropdown" class="history-dropdown"></div>
+                                </div>
+                                <div id="outputDocChips" class="history-chips"></div>
+                                <span class="hint">Paste your Google Doc ID or Link to write evaluation reports directly into your document. Click field to pick previous IDs.</span>
                             </div>
 
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
@@ -353,15 +365,15 @@
         // Theme toggle
         const toggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
-        const savedTheme = localStorage.getItem('rr_theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
 
         if (toggle) {
             toggle.addEventListener('click', () => {
+                document.body.classList.add('theme-transitioning');
                 const current = html.getAttribute('data-theme') || 'light';
                 const next = current === 'light' ? 'dark' : 'light';
                 html.setAttribute('data-theme', next);
                 localStorage.setItem('rr_theme', next);
+                setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
             });
         }
 

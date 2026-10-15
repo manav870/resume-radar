@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('rr_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Talent Pool Analytics — Resume Radar</title>
     <meta name="description"
         content="Deep recruitment pool analytics, skill gap distributions, score curves, and side-by-side candidate comparison matrix powered by Chart.js.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Library -->
+    <script src="chart.umd.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+        }
+    </script>
 </head>
 
 <body>
@@ -83,10 +94,12 @@
                 <div class="summary-card success">
                     <div class="summary-value" id="kpiTopTalent">0%</div>
                     <div class="summary-label">Top Talent Density (85%+)</div>
+                    <div id="kpiTopCount" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">0 qualified</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-value" id="kpiShortlistRate" style="color: var(--accent);">0%</div>
                     <div class="summary-label">Shortlist Rate</div>
+                    <div id="kpiShortlistCount" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">0 shortlisted</div>
                 </div>
             </div>
 
@@ -199,16 +212,16 @@
     <script>
         // ── Theme Switcher ──
         const themeToggle = document.getElementById('theme-toggle');
-        const currentTheme = localStorage.getItem('rr_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', currentTheme);
 
         if (themeToggle) {
             themeToggle.addEventListener('click', () => {
-                const active = document.documentElement.getAttribute('data-theme');
+                document.body.classList.add('theme-transitioning');
+                const active = document.documentElement.getAttribute('data-theme') || 'light';
                 const nextTheme = active === 'light' ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', nextTheme);
                 localStorage.setItem('rr_theme', nextTheme);
                 updateChartThemes(nextTheme);
+                setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
             });
         }
 
@@ -415,199 +428,237 @@
         const shortlistCount = candidates.filter(c => c.reviewStatus === 'shortlisted' || c.reviewStatus === 'interview_scheduled').length;
         const shortlistPercent = total > 0 ? Math.round((shortlistCount / total) * 100) : 0;
 
-        document.getElementById('kpiTotal').textContent = total;
-        document.getElementById('kpiAverage').textContent = `${avg}%`;
-        document.getElementById('kpiTopTalent').textContent = `${topPercent}%`;
-        document.getElementById('kpiTopCount').textContent = `${topCount} of ${total} candidates qualified`;
-        document.getElementById('kpiShortlistRate').textContent = `${shortlistPercent}%`;
-        document.getElementById('kpiShortlistCount').textContent = `${shortlistCount} candidate(s) shortlisted`;
+        const elTotal = document.getElementById('kpiTotal');
+        if (elTotal) elTotal.textContent = total;
+        const elAvg = document.getElementById('kpiAverage');
+        if (elAvg) elAvg.textContent = `${avg}%`;
+        const elTopTalent = document.getElementById('kpiTopTalent');
+        if (elTopTalent) elTopTalent.textContent = `${topPercent}%`;
+        const elTopCount = document.getElementById('kpiTopCount');
+        if (elTopCount) elTopCount.textContent = `${topCount} of ${total} candidates qualified`;
+        const elShortlistRate = document.getElementById('kpiShortlistRate');
+        if (elShortlistRate) elShortlistRate.textContent = `${shortlistPercent}%`;
+        const elShortlistCount = document.getElementById('kpiShortlistCount');
+        if (elShortlistCount) elShortlistCount.textContent = `${shortlistCount} candidate(s) shortlisted`;
 
         // ── Initialize Charts ──
         let chartInstances = {};
 
         function initCharts() {
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js library is not available');
+                return;
+            }
+
             const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
             const textCol = isDark ? '#94a3b8' : '#64748b';
             const gridCol = isDark ? 'rgba(148, 163, 184, 0.08)' : 'rgba(15, 23, 42, 0.06)';
 
             // 1. Match Score Distribution Chart
-            const tierCounts = {
-                'Top Matches (85%+)': scores.filter(s => s >= 85).length,
-                'Good Matches (70-84%)': scores.filter(s => s >= 70 && s < 85).length,
-                'Moderate (50-69%)': scores.filter(s => s >= 50 && s < 70).length,
-                'Low (<50%)': scores.filter(s => s < 50).length
-            };
+            try {
+                const tierCounts = {
+                    'Top Matches (85%+)': scores.filter(s => s >= 85).length,
+                    'Good Matches (70-84%)': scores.filter(s => s >= 70 && s < 85).length,
+                    'Moderate (50-69%)': scores.filter(s => s >= 50 && s < 70).length,
+                    'Low (<50%)': scores.filter(s => s < 50).length
+                };
 
-            const ctxScore = document.getElementById('scoreDistChart').getContext('2d');
-            chartInstances.score = new Chart(ctxScore, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(tierCounts),
-                    datasets: [{
-                        data: Object.values(tierCounts),
-                        backgroundColor: ['#10b981', '#f59e0b', '#38bdf8', '#ef4444'],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: textCol, boxWidth: 12, padding: 16 }
-                        }
-                    },
-                    cutout: '68%'
-                }
-            });
-
-            // 2. Average Category Dimensions (Radar Profile)
-            let avgReq = 0, avgPref = 0, avgExp = 0, avgEdu = 0, avgCert = 0;
-            valid.forEach(c => {
-                const cat = c.matchEvaluation?.categoryScores || {};
-                avgReq += cat.requiredSkills?.percentage ?? 0;
-                avgPref += cat.preferredSkills?.percentage ?? 0;
-                avgExp += cat.experience?.percentage ?? 0;
-                avgEdu += cat.education?.percentage ?? 0;
-                avgCert += cat.certifications?.percentage ?? 0;
-            });
-            const vLen = valid.length || 1;
-            const radarData = [
-                Math.round(avgReq / vLen),
-                Math.round(avgPref / vLen),
-                Math.round(avgExp / vLen),
-                Math.round(avgEdu / vLen),
-                Math.round(avgCert / vLen)
-            ];
-
-            const ctxRadar = document.getElementById('categoryRadarChart').getContext('2d');
-            chartInstances.radar = new Chart(ctxRadar, {
-                type: 'radar',
-                data: {
-                    labels: ['Required Skills', 'Preferred Skills', 'Experience', 'Education', 'Certifications'],
-                    datasets: [{
-                        label: 'Pool Average %',
-                        data: radarData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.25)',
-                        borderColor: '#6366f1',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#06b6d4',
-                        pointBorderColor: '#ffffff',
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            min: 0,
-                            max: 100,
-                            ticks: { display: false },
-                            grid: { color: gridCol },
-                            angleLines: { color: gridCol },
-                            pointLabels: { color: textCol, font: { size: 11, weight: 600 } }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-
-            // 3. Top Skills Frequency in Pool
-            const skillCounts = {};
-            valid.forEach(c => {
-                const sList = c.candidateProfile?.skills || [];
-                sList.forEach(s => {
-                    const clean = s.trim();
-                    if (clean) skillCounts[clean] = (skillCounts[clean] || 0) + 1;
-                });
-            });
-
-            const topSkills = Object.entries(skillCounts)
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 7);
-
-            const ctxSkills = document.getElementById('topSkillsChart').getContext('2d');
-            chartInstances.skills = new Chart(ctxSkills, {
-                type: 'bar',
-                data: {
-                    labels: topSkills.map(([k]) => k),
-                    datasets: [{
-                        label: 'Candidates with Skill',
-                        data: topSkills.map(([, v]) => v),
-                        backgroundColor: '#06b6d4',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    scales: {
-                        x: {
-                            ticks: { color: textCol, stepSize: 1 },
-                            grid: { color: gridCol }
+                const canvasScore = document.getElementById('scoreDistChart');
+                if (canvasScore) {
+                    chartInstances.score = new Chart(canvasScore, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(tierCounts),
+                            datasets: [{
+                                data: Object.values(tierCounts),
+                                backgroundColor: ['#10b981', '#f59e0b', '#38bdf8', '#ef4444'],
+                                borderWidth: 0,
+                                hoverOffset: 6
+                            }]
                         },
-                        y: {
-                            ticks: { color: textCol, font: { weight: 600 } },
-                            grid: { display: false }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: textCol, boxWidth: 12, padding: 16 }
+                                }
+                            },
+                            cutout: '68%'
                         }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    });
                 }
-            });
-
-            // 4. Most Common Missing Required Skills (Gaps)
-            const missingCounts = {};
-            valid.forEach(c => {
-                const mList = c.matchEvaluation?.missingRequiredSkills || [];
-                mList.forEach(m => {
-                    const clean = m.trim();
-                    if (clean) missingCounts[clean] = (missingCounts[clean] || 0) + 1;
-                });
-            });
-
-            let missingSkills = Object.entries(missingCounts).sort(([, a], [, b]) => b - a).slice(0, 6);
-            if (missingSkills.length === 0) {
-                missingSkills = [['No skill gaps recorded', 0]];
+            } catch (err) {
+                console.error('Error rendering Score Distribution chart:', err);
             }
 
-            const ctxMissing = document.getElementById('missingSkillsChart').getContext('2d');
-            chartInstances.missing = new Chart(ctxMissing, {
-                type: 'bar',
-                data: {
-                    labels: missingSkills.map(([k]) => k),
-                    datasets: [{
-                        label: 'Candidates Missing Skill',
-                        data: missingSkills.map(([, v]) => v),
-                        backgroundColor: '#ef4444',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            ticks: { color: textCol },
-                            grid: { display: false }
+            // 2. Average Category Dimensions (Radar Profile)
+            try {
+                let avgReq = 0, avgPref = 0, avgExp = 0, avgEdu = 0, avgCert = 0;
+                valid.forEach(c => {
+                    const cat = c.matchEvaluation?.categoryScores || {};
+                    avgReq += cat.requiredSkills?.percentage ?? 0;
+                    avgPref += cat.preferredSkills?.percentage ?? 0;
+                    avgExp += cat.experience?.percentage ?? 0;
+                    avgEdu += cat.education?.percentage ?? 0;
+                    avgCert += cat.certifications?.percentage ?? 0;
+                });
+                const vLen = valid.length || 1;
+                const radarData = [
+                    Math.round(avgReq / vLen),
+                    Math.round(avgPref / vLen),
+                    Math.round(avgExp / vLen),
+                    Math.round(avgEdu / vLen),
+                    Math.round(avgCert / vLen)
+                ];
+
+                const canvasRadar = document.getElementById('categoryRadarChart');
+                if (canvasRadar) {
+                    chartInstances.radar = new Chart(canvasRadar, {
+                        type: 'radar',
+                        data: {
+                            labels: ['Required Skills', 'Preferred Skills', 'Experience', 'Education', 'Certifications'],
+                            datasets: [{
+                                label: 'Pool Average %',
+                                data: radarData,
+                                backgroundColor: 'rgba(99, 102, 241, 0.25)',
+                                borderColor: '#6366f1',
+                                borderWidth: 2,
+                                pointBackgroundColor: '#06b6d4',
+                                pointBorderColor: '#ffffff',
+                                pointHoverRadius: 6
+                            }]
                         },
-                        y: {
-                            ticks: { color: textCol, stepSize: 1 },
-                            grid: { color: gridCol }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    min: 0,
+                                    max: 100,
+                                    ticks: { display: false, stepSize: 20 },
+                                    grid: { color: gridCol },
+                                    angleLines: { color: gridCol },
+                                    pointLabels: { color: textCol, font: { size: 11, weight: 600 } }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
                         }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
+                    });
                 }
-            });
+            } catch (err) {
+                console.error('Error rendering Radar chart:', err);
+            }
+
+            // 3. Top Skills Frequency in Pool
+            try {
+                const skillCounts = {};
+                valid.forEach(c => {
+                    const sList = c.candidateProfile?.skills || [];
+                    sList.forEach(s => {
+                        const clean = s.trim();
+                        if (clean) skillCounts[clean] = (skillCounts[clean] || 0) + 1;
+                    });
+                });
+
+                let topSkills = Object.entries(skillCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 7);
+                if (topSkills.length === 0) {
+                    topSkills = [['No skills recorded', 0]];
+                }
+
+                const canvasSkills = document.getElementById('topSkillsChart');
+                if (canvasSkills) {
+                    chartInstances.skills = new Chart(canvasSkills, {
+                        type: 'bar',
+                        data: {
+                            labels: topSkills.map(([k]) => k),
+                            datasets: [{
+                                label: 'Candidates with Skill',
+                                data: topSkills.map(([, v]) => v),
+                                backgroundColor: '#06b6d4',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            scales: {
+                                x: {
+                                    ticks: { color: textCol, stepSize: 1 },
+                                    grid: { color: gridCol }
+                                },
+                                y: {
+                                    ticks: { color: textCol, font: { weight: 600 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error rendering Top Skills chart:', err);
+            }
+
+            // 4. Most Common Missing Required Skills (Gaps)
+            try {
+                const missingCounts = {};
+                valid.forEach(c => {
+                    const mList = c.matchEvaluation?.missingRequiredSkills || [];
+                    mList.forEach(m => {
+                        const clean = m.trim();
+                        if (clean) missingCounts[clean] = (missingCounts[clean] || 0) + 1;
+                    });
+                });
+
+                let missingSkills = Object.entries(missingCounts).sort(([, a], [, b]) => b - a).slice(0, 6);
+                if (missingSkills.length === 0) {
+                    missingSkills = [['No skill gaps recorded', 0]];
+                }
+
+                const canvasMissing = document.getElementById('missingSkillsChart');
+                if (canvasMissing) {
+                    chartInstances.missing = new Chart(canvasMissing, {
+                        type: 'bar',
+                        data: {
+                            labels: missingSkills.map(([k]) => k),
+                            datasets: [{
+                                label: 'Candidates Missing Skill',
+                                data: missingSkills.map(([, v]) => v),
+                                backgroundColor: '#ef4444',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    ticks: { color: textCol },
+                                    grid: { display: false }
+                                },
+                                y: {
+                                    ticks: { color: textCol, stepSize: 1 },
+                                    grid: { color: gridCol }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error rendering Missing Skills chart:', err);
+            }
         }
 
         function updateChartThemes(theme) {
@@ -621,22 +672,24 @@
         const selectA = document.getElementById('compareSelectA');
         const selectB = document.getElementById('compareSelectB');
 
-        candidates.forEach((c, idx) => {
-            const name = c.candidateProfile?.fullName || c.fileName;
-            const score = c.matchEvaluation?.finalScore ?? 0;
-            const optA = new Option(`${name} (${score}%)`, c.candidateId);
-            const optB = new Option(`${name} (${score}%)`, c.candidateId);
-            selectA.add(optA);
-            selectB.add(optB);
-        });
+        if (selectA && selectB) {
+            candidates.forEach((c, idx) => {
+                const name = c.candidateProfile?.fullName || c.fileName;
+                const score = c.matchEvaluation?.finalScore ?? 0;
+                const optA = new Option(`${name} (${score}%)`, c.candidateId);
+                const optB = new Option(`${name} (${score}%)`, c.candidateId);
+                selectA.add(optA);
+                selectB.add(optB);
+            });
 
-        if (candidates.length > 1) {
-            selectA.selectedIndex = 0;
-            selectB.selectedIndex = 1;
+            if (candidates.length > 1) {
+                selectA.selectedIndex = 0;
+                selectB.selectedIndex = 1;
+            }
+
+            selectA.addEventListener('change', renderComparison);
+            selectB.addEventListener('change', renderComparison);
         }
-
-        selectA.addEventListener('change', renderComparison);
-        selectB.addEventListener('change', renderComparison);
 
         function renderComparison() {
             const idA = selectA.value;

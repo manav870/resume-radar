@@ -148,19 +148,30 @@ async function evaluateCandidateData(rawText, fileName, fileId = null, jobCriter
     }
 
     // 4. Optional Google Doc Report Generation
-    if (options.generateDocs && (options.outputFolderId || options.outputDocId)) {
+    if (options.generateDocs && (options.outputDocId || options.outputFolderId)) {
         try {
-            console.log(`[ResumeRadar] Creating Google Doc report for: ${candidateProfile.fullName}`);
-            const created = await docsService.createEvaluationDocument(
-                candidateProfile.fullName,
-                jobCriteria.jobTitle,
-                options.outputFolderId
-            );
-            docInfo.docId = created.docId;
-            docInfo.docUrl = created.docUrl;
+            let targetDocId = docsService.parseDocId(options.outputDocId);
+            let docUrl = null;
+
+            if (targetDocId) {
+                console.log(`[ResumeRadar] Writing evaluation report into existing Google Doc: ${targetDocId}`);
+                docUrl = `https://docs.google.com/document/d/${targetDocId}/edit`;
+            } else {
+                console.log(`[ResumeRadar] Creating new Google Doc report for: ${candidateProfile.fullName}`);
+                const created = await docsService.createEvaluationDocument(
+                    candidateProfile.fullName,
+                    jobCriteria.jobTitle,
+                    options.outputFolderId
+                );
+                targetDocId = created.docId;
+                docUrl = created.docUrl;
+            }
+
+            docInfo.docId = targetDocId;
+            docInfo.docUrl = docUrl;
 
             await docsService.buildRecruitmentReport(
-                docInfo.docId,
+                targetDocId,
                 candidateProfile,
                 jobCriteria,
                 matchEvaluation,
@@ -374,27 +385,39 @@ async function parseJobDescription(input, mimeType = null, fileName = null) {
 /**
  * Generate a Google Doc report on-demand for an existing evaluated candidate.
  */
-async function generateReportForCandidate(candidateData, jobCriteria, outputFolderId = null) {
+async function generateReportForCandidate(candidateData, jobCriteria, outputFolderId = null, outputDocId = null) {
     const candidateProfile = candidateData.candidateProfile || candidateData;
     const matchEvaluation = candidateData.matchEvaluation || {};
     const aiFeedback = candidateData.aiFeedback || {};
     const sanitizedJob = sanitizeJobCriteria(jobCriteria);
 
-    const created = await docsService.createEvaluationDocument(
-        candidateProfile.fullName || 'Candidate',
-        sanitizedJob.jobTitle,
-        outputFolderId
-    );
+    let docId = null;
+    let docUrl = null;
+
+    const parsedDocId = docsService.parseDocId(outputDocId);
+    if (parsedDocId) {
+        docId = parsedDocId;
+        docUrl = `https://docs.google.com/document/d/${docId}/edit`;
+        console.log(`[ResumeRadar] Writing on-demand report into existing Google Doc: ${docId}`);
+    } else {
+        const created = await docsService.createEvaluationDocument(
+            candidateProfile.fullName || 'Candidate',
+            sanitizedJob.jobTitle,
+            outputFolderId
+        );
+        docId = created.docId;
+        docUrl = created.docUrl;
+    }
 
     await docsService.buildRecruitmentReport(
-        created.docId,
+        docId,
         candidateProfile,
         sanitizedJob,
         matchEvaluation,
         aiFeedback
     );
 
-    return created;
+    return { docId, docUrl };
 }
 
 module.exports = {

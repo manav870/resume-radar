@@ -59,6 +59,214 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = (typeof BACKEND_URL !== 'undefined') ? BACKEND_URL : '';
 
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g,
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+
+    // ── Input History Management (Persistent, Clickable Dropdown & Chips) ──
+    function getHistory(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return [];
+            const list = JSON.parse(raw);
+            return Array.isArray(list) ? list : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function saveToHistory(key, value) {
+        if (!value || typeof value !== 'string') return;
+        const val = value.trim();
+        if (!val) return;
+        let list = getHistory(key);
+        list = list.filter(item => item !== val);
+        list.unshift(val);
+        if (list.length > 8) list = list.slice(0, 8);
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    function clearHistory(key) {
+        localStorage.removeItem(key);
+    }
+
+    function setupInputHistory(inputId, dropdownId, chipsId, storageKey, lastValueKey, seedDefault) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        const chipsContainer = document.getElementById(chipsId);
+        if (!input) return;
+
+        // Seed with existing value or default if history is currently empty
+        let currentHistory = getHistory(storageKey);
+        const savedLast = localStorage.getItem(lastValueKey);
+        if (currentHistory.length === 0) {
+            if (savedLast) {
+                saveToHistory(storageKey, savedLast);
+            } else if (seedDefault) {
+                saveToHistory(storageKey, seedDefault);
+            }
+            currentHistory = getHistory(storageKey);
+        }
+
+        // Auto-populate input if currently blank
+        const initialVal = savedLast || currentHistory[0] || '';
+        if (initialVal && !input.value) {
+            input.value = initialVal;
+        }
+
+        // Live persistence: save to lastValueKey as user types or pastes
+        input.addEventListener('input', () => {
+            const val = input.value.trim();
+            if (val) {
+                localStorage.setItem(lastValueKey, val);
+            }
+        });
+
+        input.addEventListener('change', () => {
+            const val = input.value.trim();
+            if (val) {
+                localStorage.setItem(lastValueKey, val);
+                saveToHistory(storageKey, val);
+                renderHistory();
+            }
+        });
+
+        function renderHistory() {
+            const history = getHistory(storageKey);
+
+            // 1. Render Quick Clickable Chips below input
+            if (chipsContainer) {
+                if (history.length > 0) {
+                    chipsContainer.innerHTML = `<span class="history-chip-label"><i class="fa-solid fa-clock-rotate-left"></i> Previous:</span>`;
+                    history.slice(0, 3).forEach(item => {
+                        const chip = document.createElement('span');
+                        chip.className = 'history-chip';
+                        let display = item;
+                        const match = item.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                        if (match) display = match[1];
+                        if (display.length > 20) {
+                            display = display.substring(0, 8) + '...' + display.slice(-6);
+                        }
+                        chip.textContent = display;
+                        chip.title = item;
+                        chip.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            input.value = item;
+                            localStorage.setItem(lastValueKey, item);
+                            saveToHistory(storageKey, item);
+                            if (dropdown) dropdown.classList.remove('active');
+                            renderHistory();
+                        });
+                        chipsContainer.appendChild(chip);
+                    });
+                } else {
+                    chipsContainer.innerHTML = '';
+                }
+            }
+
+            // 2. Render Dropdown Menu (Opens on click/focus)
+            if (dropdown) {
+                if (history.length === 0) {
+                    dropdown.innerHTML = `
+                        <div class="history-header">
+                            <span><i class="fa-solid fa-clock-rotate-left"></i> Previous Entries</span>
+                        </div>
+                        <div style="padding: 12px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+                            No previous entries saved yet.
+                        </div>
+                    `;
+                } else {
+                    let itemsHtml = `
+                        <div class="history-header">
+                            <span><i class="fa-solid fa-clock-rotate-left"></i> Previous Entries (${history.length})</span>
+                            <button type="button" class="history-header-clear" id="clear_${storageKey}">Clear All</button>
+                        </div>
+                    `;
+                    history.forEach(item => {
+                        itemsHtml += `
+                            <div class="history-item" data-val="${escapeHTML(item)}">
+                                <span class="history-item-text" title="${escapeHTML(item)}">${escapeHTML(item)}</span>
+                                <i class="fa-solid fa-arrow-turn-down-left" style="font-size: 0.72rem; opacity: 0.5;"></i>
+                            </div>
+                        `;
+                    });
+                    dropdown.innerHTML = itemsHtml;
+
+                    // Click item to fill input
+                    dropdown.querySelectorAll('.history-item').forEach(el => {
+                        el.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const val = el.getAttribute('data-val');
+                            input.value = val;
+                            localStorage.setItem(lastValueKey, val);
+                            saveToHistory(storageKey, val);
+                            dropdown.classList.remove('active');
+                            renderHistory();
+                        });
+                    });
+
+                    // Clear button
+                    const clearBtn = dropdown.querySelector(`#clear_${storageKey}`);
+                    if (clearBtn) {
+                        clearBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            clearHistory(storageKey);
+                            renderHistory();
+                        });
+                    }
+                }
+            }
+        }
+
+        // Open dropdown on focus or click
+        input.addEventListener('focus', () => {
+            renderHistory();
+            if (dropdown) dropdown.classList.add('active');
+        });
+
+        input.addEventListener('click', () => {
+            renderHistory();
+            if (dropdown) dropdown.classList.add('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && (!dropdown || !dropdown.contains(e.target))) {
+                if (dropdown) dropdown.classList.remove('active');
+            }
+        });
+
+        renderHistory();
+    }
+
+    // Initialize history for Resume Folder ID & Target Doc ID
+    setupInputHistory(
+        'inputFolderId',
+        'inputFolderHistoryDropdown',
+        'inputFolderChips',
+        'rr_history_folder_ids',
+        'rr_input_folder_id',
+        '12Vah4hrfHxqQy4R_-kqWK8VpD84F1aHa'
+    );
+
+    setupInputHistory(
+        'outputDocId',
+        'outputDocHistoryDropdown',
+        'outputDocChips',
+        'rr_history_doc_ids',
+        'rr_output_doc_id',
+        '12sI8scxKOLT_69zx8jGWQNu7Fga-266V4hrwrmm3eaU'
+    );
+
     // ── 4. Batch Screening from Google Drive ──
     const form = document.getElementById('processForm');
     if (form) {
@@ -77,6 +285,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!inputFolderId) {
                 alert('Please enter a Google Drive Resume Folder ID.');
                 return;
+            }
+
+            if (inputFolderId) {
+                localStorage.setItem('rr_input_folder_id', inputFolderId);
+                saveToHistory('rr_history_folder_ids', inputFolderId);
+            }
+            if (outputDocId) {
+                localStorage.setItem('rr_output_doc_id', outputDocId);
+                saveToHistory('rr_history_doc_ids', outputDocId);
             }
 
             // Set loading state
@@ -457,13 +674,18 @@ document.addEventListener('DOMContentLoaded', () => {
         btnElement.disabled = true;
         btnElement.innerHTML = `<span class="spinner" style="width: 12px; height: 12px;"></span>`;
 
+        const outputDocId = document.getElementById('outputDocId')?.value.trim() 
+            || localStorage.getItem('rr_output_doc_id') 
+            || '';
+
         try {
             const response = await fetch(`${API_BASE}/api/candidates/generate-report`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     candidateData: candidate,
-                    jobCriteria: activeJobCriteria
+                    jobCriteria: activeJobCriteria,
+                    outputDocId: outputDocId || null
                 })
             });
 

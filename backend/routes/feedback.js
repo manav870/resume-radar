@@ -217,7 +217,7 @@ router.post('/candidates/screen-file', upload.single('resumeFile'), async (req, 
  */
 router.post('/candidates/generate-report', async (req, res) => {
     try {
-        const { candidateData, jobCriteria, outputFolderId } = req.body;
+        const { candidateData, jobCriteria, outputFolderId, outputDocId } = req.body;
 
         if (!candidateData) {
             return res.status(400).json({
@@ -230,7 +230,8 @@ router.post('/candidates/generate-report', async (req, res) => {
         const docResult = await feedbackService.generateReportForCandidate(
             candidateData,
             jobCriteria || {},
-            outputFolderId || null
+            outputFolderId || null,
+            outputDocId || null
         );
 
         return res.status(200).json({

@@ -31,6 +31,21 @@ function getDriveClient() {
 }
 
 /**
+ * Parse a raw Doc ID or full Google Docs URL into a clean document ID string.
+ * Supports:
+ *   - "12sI8scxKOLT_69zx8jGWQNu7Fga-266V4hrwrmm3eaU"
+ *   - "https://docs.google.com/document/d/12sI8scxKOLT_69zx8jGWQNu7Fga-266V4hrwrmm3eaU/edit?tab=t.0"
+ */
+function parseDocId(input) {
+    if (!input || typeof input !== 'string') return null;
+    const trimmed = input.trim();
+    if (!trimmed) return null;
+    const match = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return match[1];
+    return trimmed.split('?')[0].split('#')[0].replace(/^\/+|\/+$/g, '');
+}
+
+/**
  * Create a new blank Google Document for candidate evaluation.
  *
  * @param {string} candidateName
@@ -51,15 +66,22 @@ async function createEvaluationDocument(candidateName = 'Candidate', jobTitle = 
         fileMetadata.parents = [folderId];
     }
 
-    const res = await drive.files.create({
-        requestBody: fileMetadata,
-        fields: 'id, webViewLink, webContentLink'
-    });
+    try {
+        const res = await drive.files.create({
+            requestBody: fileMetadata,
+            fields: 'id, webViewLink, webContentLink'
+        });
 
-    const docId = res.data.id;
-    const docUrl = res.data.webViewLink || `https://docs.google.com/document/d/${docId}/edit`;
+        const docId = res.data.id;
+        const docUrl = res.data.webViewLink || `https://docs.google.com/document/d/${docId}/edit`;
 
-    return { docId, docUrl };
+        return { docId, docUrl };
+    } catch (err) {
+        if (err.message && (err.message.includes('quota') || err.message.includes('storageQuota'))) {
+            throw new Error(`Google Drive storage quota reached for the Service Account. Since personal Google Drives do not grant storage quota to service accounts, please create a Google Doc in your personal Drive, share it with your Service Account email as Editor, and provide the Doc ID or URL in the "Export Doc ID" field.`);
+        }
+        throw err;
+    }
 }
 
 /**
@@ -302,5 +324,6 @@ module.exports = {
     getDriveClient,
     createEvaluationDocument,
     buildRecruitmentReport,
-    buildFeedbackText
+    buildFeedbackText,
+    parseDocId
 };

@@ -1,8 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('rr_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How It Works & Setup Guide — Resume Radar</title>
     <meta name="description"
@@ -309,15 +315,15 @@
         // Theme toggle
         const toggle = document.getElementById('theme-toggle');
         const html = document.documentElement;
-        const savedTheme = localStorage.getItem('rr_theme') || 'light';
-        html.setAttribute('data-theme', savedTheme);
 
         if (toggle) {
             toggle.addEventListener('click', () => {
-                const current = html.getAttribute('data-theme');
+                document.body.classList.add('theme-transitioning');
+                const current = html.getAttribute('data-theme') || 'light';
                 const next = current === 'light' ? 'dark' : 'light';
                 html.setAttribute('data-theme', next);
                 localStorage.setItem('rr_theme', next);
+                setTimeout(() => document.body.classList.remove('theme-transitioning'), 300);
             });
         }
 
