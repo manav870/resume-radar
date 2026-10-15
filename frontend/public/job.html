@@ -297,6 +297,7 @@
 
     <!-- Scripts -->
     <script src="config.js"></script>
+    <script src="settings.js"></script>
     <script>
         // ── Theme Switcher ──
         const themeToggle = document.getElementById('theme-toggle');
@@ -615,10 +616,26 @@ Preferred Qualifications:
             extractBtnText.style.display = 'none';
             extractSpinner.style.display = 'inline-block';
 
+            // Retrieve user-configured LLM API settings
+            const activeConfig = window.RR_Settings ? window.RR_Settings.getActiveConfig() : { apiKey: '', provider: 'gemini' };
+            const reqHeaders = {
+                'x-user-api-key': activeConfig.apiKey || '',
+                'x-user-provider': activeConfig.provider || ''
+            };
+
+            if (formData) {
+                if (activeConfig.apiKey) formData.append('userApiKey', activeConfig.apiKey);
+                if (activeConfig.provider) formData.append('userProvider', activeConfig.provider);
+            } else if (jsonBody) {
+                reqHeaders['Content-Type'] = 'application/json';
+                jsonBody.userApiKey = activeConfig.apiKey || null;
+                jsonBody.userProvider = activeConfig.provider || null;
+            }
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/jobs/parse`, {
                     method: 'POST',
-                    headers: jsonBody ? { 'Content-Type': 'application/json' } : {},
+                    headers: reqHeaders,
                     body: formData || JSON.stringify(jsonBody)
                 });
 
@@ -628,7 +645,7 @@ Preferred Qualifications:
                 }
 
                 populateCriteria(data.criteria);
-                showToast('Criteria successfully extracted with Gemini AI!', 'fa-wand-magic-sparkles');
+                showToast('Criteria successfully extracted with AI!', 'fa-wand-magic-sparkles');
 
             } catch (err) {
                 console.error(err);

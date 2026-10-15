@@ -120,6 +120,8 @@ function calculatePoolAnalytics(candidates = [], jobCriteria = {}) {
  * deterministic score + qualitative AI review + optional Google Doc.
  */
 async function evaluateCandidateData(rawText, fileName, fileId = null, jobCriteria = {}, customWeights = {}, options = {}) {
+    const userApiKey = options.userApiKey || null;
+    const userProvider = options.userProvider || null;
     let candidateProfile;
     let matchEvaluation;
     let aiFeedback;
@@ -127,10 +129,10 @@ async function evaluateCandidateData(rawText, fileName, fileId = null, jobCriter
 
     // 1. Structured Candidate Profile Extraction
     try {
-        console.log(`[ResumeRadar] Extracting candidate profile for: ${fileName}`);
-        candidateProfile = await geminiService.extractResumeData(rawText, fileName);
+        console.log(`[ResumeRadar] Extracting candidate profile for: ${fileName} (provider: ${userProvider || 'auto'})`);
+        candidateProfile = await geminiService.extractResumeData(rawText, fileName, userApiKey, userProvider);
     } catch (aiErr) {
-        console.warn(`[ResumeRadar] Gemini extraction failed for ${fileName}, using fallback:`, aiErr.message);
+        console.warn(`[ResumeRadar] AI extraction failed for ${fileName}, using fallback:`, aiErr.message);
         candidateProfile = fallbacks.getFallbackCandidateProfile(fileName, rawText);
     }
 
@@ -141,7 +143,7 @@ async function evaluateCandidateData(rawText, fileName, fileId = null, jobCriter
     // 3. AI Qualitative Assessment (Strengths, Gaps, Interview Probe Questions)
     try {
         console.log(`[ResumeRadar] Generating AI qualitative feedback for: ${fileName}`);
-        aiFeedback = await geminiService.generateCandidateFeedback(candidateProfile, jobCriteria, matchEvaluation);
+        aiFeedback = await geminiService.generateCandidateFeedback(candidateProfile, jobCriteria, matchEvaluation, userApiKey, userProvider);
     } catch (feedbackErr) {
         console.warn(`[ResumeRadar] Qualitative feedback failed for ${fileName}, using fallback:`, feedbackErr.message);
         aiFeedback = fallbacks.getFallbackCandidateFeedback(candidateProfile, jobCriteria, matchEvaluation);
@@ -357,7 +359,7 @@ async function screenSingleFile(fileBuffer, mimeType, originalName, jobCriteria 
  * @param {string} [mimeType] - MIME type if input is a buffer
  * @param {string} [fileName] - File name if input is a buffer
  */
-async function parseJobDescription(input, mimeType = null, fileName = null) {
+async function parseJobDescription(input, mimeType = null, fileName = null, userApiKey = null, userProvider = null) {
     let jobText = '';
 
     if (Buffer.isBuffer(input)) {
@@ -373,11 +375,11 @@ async function parseJobDescription(input, mimeType = null, fileName = null) {
     }
 
     try {
-        console.log('[ResumeRadar] Extracting job criteria with Gemini...');
-        const rawCriteria = await geminiService.extractJobCriteria(jobText);
+        console.log(`[ResumeRadar] Extracting job criteria with AI (provider: ${userProvider || 'auto'})...`);
+        const rawCriteria = await geminiService.extractJobCriteria(jobText, userApiKey, userProvider);
         return sanitizeJobCriteria(rawCriteria);
     } catch (err) {
-        console.warn('[ResumeRadar] Gemini JD extraction failed, using fallback criteria:', err.message);
+        console.warn('[ResumeRadar] AI JD extraction failed, using fallback criteria:', err.message);
         return sanitizeJobCriteria(fallbacks.getFallbackJobCriteria(jobText));
     }
 }

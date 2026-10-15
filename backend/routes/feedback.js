@@ -50,8 +50,13 @@ router.post('/', async (req, res) => {
             maxFiles,
             jobCriteria,
             customWeights,
-            generateDocs
+            generateDocs,
+            userApiKey,
+            userProvider
         } = req.body;
+
+        const effectiveKey = userApiKey || req.headers['x-user-api-key'] || null;
+        const effectiveProvider = userProvider || req.headers['x-user-provider'] || null;
 
         if (!inputFolderId || typeof inputFolderId !== 'string' || !inputFolderId.trim()) {
             return res.status(400).json({
@@ -65,7 +70,7 @@ router.post('/', async (req, res) => {
         const requestedFiles = parseInt(maxFiles, 10) || parseInt(process.env.MAX_FILES_DEFAULT, 10) || 10;
         const finalMaxFiles = Math.min(Math.max(1, requestedFiles), maxFilesLimit);
 
-        console.log(`[Route] Starting batch screening for max ${finalMaxFiles} files from folder: ${inputFolderId}`);
+        console.log(`[Route] Starting batch screening for max ${finalMaxFiles} files from folder: ${inputFolderId} (provider: ${effectiveProvider || 'auto'})`);
 
         const results = await feedbackService.processBatch(
             inputFolderId.trim(),
@@ -73,7 +78,7 @@ router.post('/', async (req, res) => {
             finalMaxFiles,
             jobCriteria || {},
             customWeights || {},
-            { generateDocs: Boolean(generateDocs), outputFolderId, outputDocId }
+            { generateDocs: Boolean(generateDocs), outputFolderId, outputDocId, userApiKey: effectiveKey, userProvider: effectiveProvider }
         );
 
         return res.status(200).json(results);
@@ -120,7 +125,10 @@ router.post('/jobs/parse', upload.single('jobFile'), async (req, res) => {
             });
         }
 
-        const criteria = await feedbackService.parseJobDescription(input, mimeType, fileName);
+        const effectiveKey = req.body.userApiKey || req.headers['x-user-api-key'] || null;
+        const effectiveProvider = req.body.userProvider || req.headers['x-user-provider'] || null;
+
+        const criteria = await feedbackService.parseJobDescription(input, mimeType, fileName, effectiveKey, effectiveProvider);
 
         return res.status(200).json({
             success: true,
@@ -179,8 +187,10 @@ router.post('/candidates/screen-file', upload.single('resumeFile'), async (req, 
 
         const generateDocs = req.body.generateDocs === 'true' || req.body.generateDocs === true;
         const outputFolderId = req.body.outputFolderId || null;
+        const userApiKey = req.body.userApiKey || req.headers['x-user-api-key'] || null;
+        const userProvider = req.body.userProvider || req.headers['x-user-provider'] || null;
 
-        console.log(`[Route] Screening uploaded single resume: ${req.file.originalname}`);
+        console.log(`[Route] Screening uploaded single resume: ${req.file.originalname} (provider: ${userProvider || 'auto'})`);
 
         const result = await feedbackService.screenSingleFile(
             req.file.buffer,
@@ -188,7 +198,7 @@ router.post('/candidates/screen-file', upload.single('resumeFile'), async (req, 
             req.file.originalname,
             jobCriteria,
             customWeights,
-            { generateDocs, outputFolderId }
+            { generateDocs, outputFolderId, userApiKey, userProvider }
         );
 
         return res.status(200).json({

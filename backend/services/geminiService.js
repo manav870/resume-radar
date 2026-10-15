@@ -8,13 +8,24 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
-const apiKey = process.env.GEMINI_API_KEY;
-let genAI;
-if (apiKey) {
-    genAI = new GoogleGenerativeAI(apiKey);
+const defaultApiKey = process.env.GEMINI_API_KEY;
+let defaultGenAI;
+if (defaultApiKey) {
+    defaultGenAI = new GoogleGenerativeAI(defaultApiKey);
 }
 
-// ── Fallback model chain for retry logic ──
+/**
+ * Get a GoogleGenerativeAI instance — uses the user-supplied key if provided,
+ * otherwise falls back to the server .env key.
+ */
+function getGenAI(userApiKey) {
+    if (userApiKey && userApiKey.trim()) {
+        return new GoogleGenerativeAI(userApiKey.trim());
+    }
+    return defaultGenAI;
+}
+
+// ── Fallback model chain for Gemini retry logic ──
 const FALLBACK_MODELS = [
     process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
     'gemini-2.0-flash-lite',
@@ -24,11 +35,146 @@ const FALLBACK_MODELS = [
 const MAX_RETRIES = FALLBACK_MODELS.length;
 
 /**
- * Generic Gemini call with retry + model fallback logic.
+ * Robust JSON parser that handles code blocks, markdown wrappers, and extraneous text.
  */
-async function callGeminiWithRetry(prompt) {
+function parseJsonRobust(text) {
+    if (!text || typeof text !== 'string') {
+        throw new Error('Cannot parse empty or invalid text as JSON');
+    }
+    const trimmed = text.trim();
+    try {
+        return JSON.parse(trimmed);
+    } catch (e1) {
+        // Strip markdown code fences if present (e.g. ```json ... ```)
+        let cleaned = trimmed.replace(/^```[a-z]*\s*/i, '').replace(/\s*```$/i, '').trim();
+        try {
+            return JSON.parse(cleaned);
+        } catch (e2) {
+            // Find outermost { and }
+            const start = cleaned.indexOf('{');
+            const end = cleaned.lastIndexOf('}');
+            if (start !== -1 && end !== -1 && end > start) {
+                return JSON.parse(cleaned.substring(start, end + 1));
+            }
+            throw new Error(`Failed to parse AI output as JSON: ${e2.message}`);
+        }
+    }
+}
+
+/**
+ * Call OpenAI API using native fetch (Node 18+).
+ */
+async function callOpenAI(prompt, apiKey) {
+    if (!apiKey || !apiKey.trim()) {
+        throw new Error('OpenAI API key is missing. Please enter your OpenAI key in Settings (⚙️) on the website.');
+    }
+    const models = ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo'];
+    let lastError = null;
+
+    for (const model of models) {
+        try {
+            console.log(`  [OpenAI] Invoking model: ${model}...`);
+            const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey.trim()}`
+                },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        { role: 'system', content: 'You are an expert HR data parsing system. You must return ONLY raw valid JSON adhering strictly to the user schema. Do NOT include markdown formatting or explanations.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    response_format: { type: 'json_object' },
+                    temperature: 0.1
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                const errMsg = data.error?.message || `HTTP ${res.status}`;
+                throw new Error(`OpenAI API error: ${errMsg}`);
+            }
+
+            const rawText = data.choices?.[0]?.message?.content;
+            if (!rawText) throw new Error('Empty response from OpenAI');
+
+            console.log(`  [OpenAI] Succeeded using model: ${model}`);
+            return parseJsonRobust(rawText);
+        } catch (err) {
+            lastError = err;
+            console.warn(`  [OpenAI] ${model} attempt failed: ${err.message}`);
+            // If the key is clearly invalid, don't keep cycling models
+            if (err.message.includes('Incorrect API key') || err.message.includes('invalid_api_key')) {
+                throw err;
+            }
+        }
+    }
+    throw new Error(`All OpenAI models failed: ${lastError?.message}`);
+}
+
+/**
+ * Call Anthropic Claude API using native fetch.
+ */
+async function callClaude(prompt, apiKey) {
+    if (!apiKey || !apiKey.trim()) {
+        throw new Error('Anthropic Claude API key is missing. Please enter your Claude key in Settings (⚙️) on the website.');
+    }
+    const models = ['claude-3-5-haiku-20241022', 'claude-3-haiku-20240307', 'claude-3-5-sonnet-20241022'];
+    let lastError = null;
+
+    for (const model of models) {
+        try {
+            console.log(`  [Claude] Invoking model: ${model}...`);
+            const res = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey.trim(),
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model,
+                    max_tokens: 4096,
+                    system: 'You are an expert HR data parsing system. Return strictly valid JSON conforming to the requested schema. Do NOT wrap in markdown code blocks (```json or ```), explanations, or preambles.',
+                    messages: [
+                        { role: 'user', content: prompt }
+                    ]
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                const errMsg = data.error?.message || `HTTP ${res.status}`;
+                throw new Error(`Claude API error: ${errMsg}`);
+            }
+
+            const rawText = data.content?.[0]?.text;
+            if (!rawText) throw new Error('Empty response from Claude');
+
+            console.log(`  [Claude] Succeeded using model: ${model}`);
+            return parseJsonRobust(rawText);
+        } catch (err) {
+            lastError = err;
+            console.warn(`  [Claude] ${model} attempt failed: ${err.message}`);
+            if (err.message.includes('authentication_error') || err.message.includes('invalid x-api-key')) {
+                throw err;
+            }
+        }
+    }
+    throw new Error(`All Claude models failed: ${lastError?.message}`);
+}
+
+/**
+ * Generic Gemini call with retry + model fallback logic.
+ * @param {string} prompt - The prompt to send.
+ * @param {string} [userApiKey] - Optional user-supplied Gemini API key.
+ */
+async function callGeminiWithRetry(prompt, userApiKey) {
+    const genAI = getGenAI(userApiKey);
     if (!genAI) {
-        throw new Error('Gemini API key not configured.');
+        throw new Error('Gemini API key not configured. Please add your API key in Settings (⚙️) on the website.');
     }
     let lastError = null;
 
@@ -50,15 +196,7 @@ async function callGeminiWithRetry(prompt) {
                 throw new Error('Empty response from Gemini');
             }
 
-            let jsonRes;
-            try {
-                jsonRes = JSON.parse(responseText);
-            } catch (e) {
-                // Strip markdown code fences if present
-                const cleaned = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-                jsonRes = JSON.parse(cleaned);
-            }
-
+            const jsonRes = parseJsonRobust(responseText);
             console.log(`  [Gemini] Succeeded on attempt ${attempt + 1} (model: ${modelName})`);
             return jsonRes;
 
@@ -82,6 +220,38 @@ async function callGeminiWithRetry(prompt) {
     throw new Error(`All Gemini retries exhausted: ${lastError?.message}`);
 }
 
+/**
+ * Auto-detect LLM provider based on key format or explicit choice.
+ */
+function resolveProvider(userApiKey, userProvider) {
+    if (userProvider && ['gemini', 'openai', 'claude'].includes(userProvider.toLowerCase())) {
+        return userProvider.toLowerCase();
+    }
+    if (userApiKey && typeof userApiKey === 'string') {
+        const key = userApiKey.trim();
+        if (key.startsWith('sk-ant-')) return 'claude';
+        if (key.startsWith('sk-')) return 'openai';
+        if (key.startsWith('AIza')) return 'gemini';
+    }
+    return 'gemini';
+}
+
+/**
+ * Unified multi-LLM dispatcher: routes to Gemini, OpenAI, or Claude.
+ */
+async function callLLM(prompt, userApiKey, userProvider) {
+    const provider = resolveProvider(userApiKey, userProvider);
+    console.log(`[ResumeRadar AI] Routing task to LLM provider: "${provider}"`);
+
+    if (provider === 'openai') {
+        return await callOpenAI(prompt, userApiKey);
+    } else if (provider === 'claude') {
+        return await callClaude(prompt, userApiKey);
+    } else {
+        return await callGeminiWithRetry(prompt, userApiKey);
+    }
+}
+
 
 // ═══════════════════════════════════════════════
 // 1. RESUME EXTRACTION
@@ -94,7 +264,7 @@ async function callGeminiWithRetry(prompt) {
  * @param {string} fileName - Original file name (for context).
  * @returns {Promise<Object>} Structured candidate profile JSON.
  */
-async function extractResumeData(resumeText, fileName) {
+async function extractResumeData(resumeText, fileName, userApiKey, userProvider) {
     const prompt = `
 You are an expert HR resume parser. Analyze the following resume text and extract ALL structured information.
 
@@ -145,7 +315,7 @@ Resume Text:
 ${resumeText}
 `;
 
-    const result = await callGeminiWithRetry(prompt);
+    const result = await callLLM(prompt, userApiKey, userProvider);
     return validateResumeData(result);
 }
 
@@ -155,12 +325,14 @@ ${resumeText}
 // ═══════════════════════════════════════════════
 
 /**
- * Extract structured job requirements from a job description text using Gemini.
+ * Extract structured job requirements from a job description text using LLM.
  *
  * @param {string} jobText - Plain text of the job description.
+ * @param {string} [userApiKey] - Optional user API key.
+ * @param {string} [userProvider] - Optional preferred provider ('gemini', 'openai', 'claude').
  * @returns {Promise<Object>} Structured job criteria JSON.
  */
-async function extractJobCriteria(jobText) {
+async function extractJobCriteria(jobText, userApiKey, userProvider) {
     const prompt = `
 You are an expert HR job description analyst. Analyze the following job description and extract ALL structured requirements.
 
@@ -184,7 +356,7 @@ Job Description:
 ${jobText}
 `;
 
-    const result = await callGeminiWithRetry(prompt);
+    const result = await callLLM(prompt, userApiKey, userProvider);
     return validateJobCriteria(result);
 }
 
@@ -199,9 +371,11 @@ ${jobText}
  * @param {Object} candidateProfile - Structured candidate data.
  * @param {Object} jobCriteria - Structured job requirements.
  * @param {Object} matchScores - The deterministic match scores from scoringService.
+ * @param {string} [userApiKey] - Optional user API key.
+ * @param {string} [userProvider] - Optional preferred provider ('gemini', 'openai', 'claude').
  * @returns {Promise<Object>} AI feedback with strengths, gaps, and interview questions.
  */
-async function generateCandidateFeedback(candidateProfile, jobCriteria, matchScores) {
+async function generateCandidateFeedback(candidateProfile, jobCriteria, matchScores, userApiKey, userProvider) {
     const prompt = `
 You are a senior HR recruitment analyst. Given a candidate's profile, the job requirements, and their match scores, provide a qualitative assessment.
 
@@ -239,7 +413,7 @@ Return ONLY valid JSON matching this exact structure:
 }
 `;
 
-    return await callGeminiWithRetry(prompt);
+    return await callLLM(prompt, userApiKey, userProvider);
 }
 
 
@@ -287,5 +461,7 @@ module.exports = {
     extractResumeData,
     extractJobCriteria,
     generateCandidateFeedback,
-    callGeminiWithRetry
+    callGeminiWithRetry,
+    callLLM,
+    resolveProvider
 };

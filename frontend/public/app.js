@@ -99,25 +99,21 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem(key);
     }
 
-    function setupInputHistory(inputId, dropdownId, chipsId, storageKey, lastValueKey, seedDefault) {
+    function setupInputHistory(inputId, dropdownId, chipsId, storageKey, lastValueKey) {
         const input = document.getElementById(inputId);
         const dropdown = document.getElementById(dropdownId);
         const chipsContainer = document.getElementById(chipsId);
         if (!input) return;
 
-        // Seed with existing value or default if history is currently empty
+        // Load existing history from this user's browser localStorage only
         let currentHistory = getHistory(storageKey);
         const savedLast = localStorage.getItem(lastValueKey);
-        if (currentHistory.length === 0) {
-            if (savedLast) {
-                saveToHistory(storageKey, savedLast);
-            } else if (seedDefault) {
-                saveToHistory(storageKey, seedDefault);
-            }
+        if (currentHistory.length === 0 && savedLast) {
+            saveToHistory(storageKey, savedLast);
             currentHistory = getHistory(storageKey);
         }
 
-        // Auto-populate input if currently blank
+        // Auto-populate input only if this specific user has a previously entered value
         const initialVal = savedLast || currentHistory[0] || '';
         if (initialVal && !input.value) {
             input.value = initialVal;
@@ -248,14 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
         renderHistory();
     }
 
-    // Initialize history for Resume Folder ID & Target Doc ID
+    // Initialize history for Resume Folder ID & Target Doc ID (clean per-device; stored only in user's browser)
     setupInputHistory(
         'inputFolderId',
         'inputFolderHistoryDropdown',
         'inputFolderChips',
         'rr_history_folder_ids',
-        'rr_input_folder_id',
-        '12Vah4hrfHxqQy4R_-kqWK8VpD84F1aHa'
+        'rr_input_folder_id'
     );
 
     setupInputHistory(
@@ -263,8 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'outputDocHistoryDropdown',
         'outputDocChips',
         'rr_history_doc_ids',
-        'rr_output_doc_id',
-        '12sI8scxKOLT_69zx8jGWQNu7Fga-266V4hrwrmm3eaU'
+        'rr_output_doc_id'
     );
 
     // ── 4. Batch Screening from Google Drive ──
@@ -301,10 +295,17 @@ document.addEventListener('DOMContentLoaded', () => {
             btnText.style.display = 'none';
             spinner.style.display = 'inline-block';
 
+            // Retrieve user-configured LLM API settings
+            const activeConfig = window.RR_Settings ? window.RR_Settings.getActiveConfig() : { apiKey: '', provider: 'gemini' };
+
             try {
                 const response = await fetch(`${API_BASE}/api`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-api-key': activeConfig.apiKey || '',
+                        'x-user-provider': activeConfig.provider || ''
+                    },
                     body: JSON.stringify({
                         inputFolderId,
                         outputFolderId: outputDocId || null,
@@ -312,7 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         maxFiles: parseInt(maxFiles, 10),
                         jobCriteria: activeJobCriteria,
                         customWeights: activeCustomWeights || {},
-                        generateDocs
+                        generateDocs,
+                        userApiKey: activeConfig.apiKey || null,
+                        userProvider: activeConfig.provider || null
                     })
                 });
 
@@ -402,8 +405,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 formData.append('generateDocs', 'true');
 
+                // Retrieve user-configured LLM API settings
+                const activeConfig = window.RR_Settings ? window.RR_Settings.getActiveConfig() : { apiKey: '', provider: 'gemini' };
+                if (activeConfig.apiKey) {
+                    formData.append('userApiKey', activeConfig.apiKey);
+                }
+                if (activeConfig.provider) {
+                    formData.append('userProvider', activeConfig.provider);
+                }
+
                 const response = await fetch(`${API_BASE}/api/candidates/screen-file`, {
                     method: 'POST',
+                    headers: {
+                        'x-user-api-key': activeConfig.apiKey || '',
+                        'x-user-provider': activeConfig.provider || ''
+                    },
                     body: formData
                 });
 
